@@ -1,0 +1,6 @@
+@MyGuitarShop.Api_HostAddress = http://localhost:5087
+
+GET {{MyGuitarShop.Api_HostAddress}}/
+Accept: application/json
+
+###
