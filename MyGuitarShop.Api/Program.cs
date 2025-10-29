@@ -79,7 +79,7 @@ namespace MyGuitarShop.Api
             var connectionString = builder.Configuration.GetConnectionString(name: "MyGuitarShopDatabase")
                 ?? throw new InvalidOperationException("MyGuitarShop connection string not found.");
 
-            builder.Services.AddSingleton(new SqlConnectionFactory(connectionString)));
+            builder.Services.AddSingleton(new SqlConnectionFactory(connectionString));
 
             builder.Services.AddControllers();
         }
