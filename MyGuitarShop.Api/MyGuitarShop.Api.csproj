@@ -15,8 +15,4 @@
     <ProjectReference Include="..\MyGuitarShop.Data.Ado\MyGuitarShop.Data.Ado.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
 </Project>
