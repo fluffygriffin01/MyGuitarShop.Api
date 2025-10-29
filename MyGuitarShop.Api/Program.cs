@@ -14,6 +14,8 @@ namespace MyGuitarShop.Api
             try
             {
                 var builder = WebApplication.CreateBuilder(args);
+
+                AddLogging(builder);
                 AddServices(builder);
 
                 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -43,6 +45,24 @@ namespace MyGuitarShop.Api
 
                 Console.WriteLine(ex.Message);
             }
+        }
+
+        private static void AddLogging(WebApplicationBuilder builder)
+        {
+            builder.Services.AddLogging(logging => 
+            {
+                logging.ClearProviders();
+                logging.AddFilter(category: "Microsoft", LogLevel.Information)
+                    .AddFilter(category: "MicroSoft.AspNetCore.HttpLogging", LogLevel.Information)
+                    .AddConsole();
+            });
+
+            builder.Services.AddHttpLogging(options =>
+            {
+                options.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.RequestPath
+                | Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.RequestMethod
+                | Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.ResponseStatusCode;
+            });
         }
 
         private static void ConfigureApplication(WebApplication app)
