@@ -102,6 +102,37 @@ namespace MyGuitarShop.Data.Ado.Repository
             return customer;
         }
 
+        public async Task<CustomerDto?> FindByUniqueAsync(string emailAddress)
+        {
+            CustomerDto? customer = null;
+            try
+            {
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+                await using var command = new SqlCommand(cmdText: "SELECT * FROM Customers WHERE EmailAddress = @EmailAddress;", connection);
+                command.Parameters.AddWithValue("@EmailAddress", emailAddress);
+                var reader = await command.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
+                {
+                    customer = new CustomerDto
+                    {
+                        CustomerID = reader.GetInt32(reader.GetOrdinal("CustomerID")),
+                        EmailAddress = reader.GetString(reader.GetOrdinal("EmailAddress")),
+                        Password = reader.GetString(reader.GetOrdinal("Password")),
+                        FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
+                        LastName = reader.GetString(reader.GetOrdinal("LastName")),
+                        ShippingAddressID = reader.IsDBNull(reader.GetOrdinal("ShippingAddressID")) ? null : reader.GetInt32(reader.GetOrdinal("ShippingAddressID")),
+                        BillingAddressID = reader.IsDBNull(reader.GetOrdinal("BillingAddressID")) ? null : reader.GetInt32(reader.GetOrdinal("BillingAddressID"))
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, $"Error retrieving customer with email address {emailAddress}");
+            }
+            return customer;
+        }
+
         public async Task<int> UpdateAsync(int id, CustomerDto dto)
         {
             const string query = @"

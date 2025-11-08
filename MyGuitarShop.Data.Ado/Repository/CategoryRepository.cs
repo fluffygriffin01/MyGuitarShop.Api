@@ -87,6 +87,32 @@ namespace MyGuitarShop.Data.Ado.Repository
             return category;
         }
 
+        public async Task<CategoryDto?> FindByUniqueAsync(string categoryName)
+        {
+            CategoryDto? category = null;
+            try
+            {
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+                await using var command = new SqlCommand(cmdText: "SELECT * FROM Categories WHERE CategoryName = @CategoryName;", connection);
+                command.Parameters.AddWithValue("@CategoryName", categoryName);
+                var reader = await command.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
+                {
+                    category = new CategoryDto
+                    {
+                        CategoryID = reader.GetInt32(reader.GetOrdinal("CategoryID")),
+                        CategoryName = reader.GetString(reader.GetOrdinal("CategoryName"))
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, $"Error retrieving category with name {categoryName}");
+            }
+            return category;
+        }
+
         public async Task<int> UpdateAsync(int id, CategoryDto dto)
         {
             const string query = @"

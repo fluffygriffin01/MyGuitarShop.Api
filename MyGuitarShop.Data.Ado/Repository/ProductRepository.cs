@@ -105,6 +105,38 @@ namespace MyGuitarShop.Data.Ado.Repository
             return product;
         }
 
+        public async Task<ProductDto?> FindByUniqueAsync(string productCode)
+        {
+            ProductDto? product = null;
+            try
+            {
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+                await using var command = new SqlCommand(cmdText: "SELECT * FROM Products WHERE ProductCode = @ProductCode;", connection);
+                command.Parameters.AddWithValue("@ProductCode", productCode);
+                var reader = await command.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
+                {
+                    product = new ProductDto
+                    {
+                        ProductID = reader.GetInt32(reader.GetOrdinal("ProductID")),
+                        CategoryID = reader.IsDBNull(reader.GetOrdinal("CategoryID")) ? null : reader.GetInt32(reader.GetOrdinal("CategoryID")),
+                        ProductCode = reader.GetString(reader.GetOrdinal("ProductCode")),
+                        ProductName = reader.GetString(reader.GetOrdinal("ProductName")),
+                        Description = reader.GetString(reader.GetOrdinal("Description")),
+                        ListPrice = reader.GetDecimal(reader.GetOrdinal("ListPrice")),
+                        DiscountPercent = reader.GetDecimal(reader.GetOrdinal("DiscountPercent")),
+                        DateAdded = reader.IsDBNull(reader.GetOrdinal("DateAdded")) ? null : reader.GetDateTime(reader.GetOrdinal("DateAdded"))
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, $"Error retrieving product with code {productCode}");
+            }
+            return product;
+        }
+
         public async Task<int> UpdateAsync(int id, ProductDto dto)
         {
             const string query = @"
