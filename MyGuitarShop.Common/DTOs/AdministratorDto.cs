@@ -4,7 +4,7 @@ namespace MyGuitarShop.Common.Dtos
 {
     public class AdministratorDto
     {
-        public required int AdminID { get; set; }
+        public int? AdminID { get; set; } = null;
         [MaxLength(255)]
         public required string EmailAddress { get; set; }
         [MaxLength(255)]

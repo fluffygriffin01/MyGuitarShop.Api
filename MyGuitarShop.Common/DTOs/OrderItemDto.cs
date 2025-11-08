@@ -4,7 +4,7 @@ namespace MyGuitarShop.Common.Dtos
 {
     public class OrderItemDto
     {
-        public required int ItemID { get; set; }
+        public int? ItemID { get; set; } = null;
         public int? OrderID { get; set; } = null;
         public int? ProductID { get; set; } = null;
         public required decimal ItemPrice { get; set; }

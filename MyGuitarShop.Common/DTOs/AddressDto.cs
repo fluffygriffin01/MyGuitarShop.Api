@@ -4,7 +4,7 @@ namespace MyGuitarShop.Common.Dtos
 {
     public class AddressDto
     {
-        public required int AddressID { get; set; }
+        public int? AddressID { get; set; } = null;
         public int? CustomerID { get; set; } = null;
         [MaxLength(60)]
         public required string Line1 { get; set; }
