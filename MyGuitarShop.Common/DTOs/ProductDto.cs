@@ -9,7 +9,7 @@ namespace MyGuitarShop.Common.Dtos
 {
     public class ProductDto
     {
-        public int? ProductID { get; set; } = null;
+        public required int ProductID { get; set; }
         public int? CategoryID { get; set; } = null;
         [MaxLength(10)]
         public required string ProductCode { get; set; }
