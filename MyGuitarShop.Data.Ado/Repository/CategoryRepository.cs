@@ -1,14 +1,8 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using MyGuitarShop.Common.Dtos;
-using MyGuitarShop.Common.DTOs;
 using MyGuitarShop.Common.Interfaces;
 using MyGuitarShop.Data.Ado.Factories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MyGuitarShop.Data.Ado.Repository
 {
@@ -104,6 +98,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             {
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
                 await using var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CategoryID", id);
                 command.Parameters.AddWithValue("@CategoryName", dto.CategoryName);
                 return await command.ExecuteNonQueryAsync();
             }
