@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MyGuitarShop.Common\MyGuitarShop.Common.csproj" />
     <ProjectReference Include="..\MyGuitarShop.Data.Ado\MyGuitarShop.Data.Ado.csproj" />
+    <ProjectReference Include="..\MyGuitarShop.Data.EFCore\MyGuitarShop.Data.EFCore.csproj" />
   </ItemGroup>
 
 </Project>
