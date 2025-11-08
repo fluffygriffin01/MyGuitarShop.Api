@@ -1,13 +1,8 @@
-
-
-using Microsoft.Data.SqlClient;
 using MyGuitarShop.Common.Dtos;
 using MyGuitarShop.Common.Interfaces;
-using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
 using MyGuitarShop.Data.Ado.Repository;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace MyGuitarShop.Api
 {
@@ -84,7 +79,12 @@ namespace MyGuitarShop.Api
                 ?? throw new InvalidOperationException("MyGuitarShop connection string not found.");
 
             builder.Services.AddSingleton(new SqlConnectionFactory(connectionString));
-
+            builder.Services.AddScoped<IRepository<AddressDto>, AddressRepository>();
+            builder.Services.AddScoped<IRepository<AdministratorDto>, AdministratorRepository>();
+            builder.Services.AddScoped<IRepository<CategoryDto>, CategoryRepository>();
+            builder.Services.AddScoped<IRepository<CustomerDto>, CustomerRepository>();
+            builder.Services.AddScoped<IRepository<OrderItemDto>, OrderItemRepository>();
+            builder.Services.AddScoped<IRepository<OrderDto>, OrderRepository>();
             builder.Services.AddScoped<IRepository<ProductDto>, ProductRepository>();
 
             builder.Services.AddControllers();
