@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using MyGuitarShop.Common.Dtos;
 using MyGuitarShop.Common.Interfaces;
-using MyGuitarShop.Data.Ado.Entities;
-using MyGuitarShop.Data.Ado.Repository;
 
 namespace MyGuitarShop.Api.Controllers
 {
@@ -36,9 +33,8 @@ namespace MyGuitarShop.Api.Controllers
             {
                 var product = await repo.FindByIdAsync(id);
                 if (product == null)
-                {
                     return NotFound();
-                }
+
                 return Ok(product);
             }
             catch (Exception ex)
@@ -54,7 +50,6 @@ namespace MyGuitarShop.Api.Controllers
             try
             {
                 var numProductsCreated = await repo.InsertAsync(newProduct);
-
                 return Ok($"{numProductsCreated} new products created");
             }
             catch (Exception ex)
