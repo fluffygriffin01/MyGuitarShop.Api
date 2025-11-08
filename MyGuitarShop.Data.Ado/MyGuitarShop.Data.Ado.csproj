@@ -10,4 +10,8 @@
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MyGuitarShop.Common\MyGuitarShop.Common.csproj" />
+  </ItemGroup>
+
 </Project>
