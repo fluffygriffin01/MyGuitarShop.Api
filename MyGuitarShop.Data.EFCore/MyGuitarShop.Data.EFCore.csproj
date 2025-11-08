@@ -19,4 +19,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MyGuitarShop.Common\MyGuitarShop.Common.csproj" />
+  </ItemGroup>
+
 </Project>

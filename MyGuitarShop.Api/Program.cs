@@ -92,6 +92,14 @@ namespace MyGuitarShop.Api
             builder.Services.AddScoped<IRepository<OrderDto>, OrderRepository>();
             builder.Services.AddScoped<IRepository<ProductDto>, ProductRepository>();
 
+            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.AddressRepository>();
+            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.AdministratorRepository>();           
+            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.CategoryRepository>();
+            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.CustomerRepository>();
+            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.OrderItemRepository>();
+            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.OrderRepository>();           
+            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.ProductRepository>();
+
             builder.Services.AddControllers();
         }
     }
