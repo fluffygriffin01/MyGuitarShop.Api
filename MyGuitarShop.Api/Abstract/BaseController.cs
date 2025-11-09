@@ -9,11 +9,10 @@ namespace MyGuitarShop.Api.Abstract
     public abstract class BaseController<TDto, TEntity>(
         IRepository<TEntity> repository,
         ILogger<BaseController<TDto, TEntity>> logger
-        ) : ControllerBase
-        where TEntity : class, new()
+        ) : ControllerBase where TEntity : class, new()
     {
         [HttpGet]
-        public async Task<IActionResult> GetAsync()
+        public async Task<IActionResult> GetAllAsync()
         {
             try
             {

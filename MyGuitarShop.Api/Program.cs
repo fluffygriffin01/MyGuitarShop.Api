@@ -80,9 +80,6 @@ namespace MyGuitarShop.Api
             var connectionString = builder.Configuration.GetConnectionString(name: "MyGuitarShop")
                 ?? throw new InvalidOperationException("MyGuitarShop connection string not found.");
 
-            builder.Services.AddDbContextFactory<MyGuitarShopContext>(options => 
-                options.UseSqlServer(connectionString));
-
             builder.Services.AddSingleton(new SqlConnectionFactory(connectionString));
             builder.Services.AddScoped<IRepository<AddressDto>, AddressRepository>();
             builder.Services.AddScoped<IRepository<AdministratorDto>, AdministratorRepository>();
@@ -91,6 +88,9 @@ namespace MyGuitarShop.Api
             builder.Services.AddScoped<IRepository<OrderItemDto>, OrderItemRepository>();
             builder.Services.AddScoped<IRepository<OrderDto>, OrderRepository>();
             builder.Services.AddScoped<IRepository<ProductDto>, ProductRepository>();
+
+            builder.Services.AddDbContextFactory<MyGuitarShopContext>(options =>
+                options.UseSqlServer(connectionString));
 
             builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.AddressRepository>();
             builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.AdministratorRepository>();           
