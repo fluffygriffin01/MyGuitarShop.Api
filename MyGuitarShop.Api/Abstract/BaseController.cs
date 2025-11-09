@@ -7,8 +7,9 @@ namespace MyGuitarShop.Api.Abstract
     [ApiController]
     [Route("api/[controller]")]
     public abstract class BaseController<TDto, TEntity>(
-        ILogger<BaseController<TDto, TEntity>> logger,
-        IRepository<TEntity> repository) : ControllerBase
+        IRepository<TEntity> repository,
+        ILogger<BaseController<TDto, TEntity>> logger
+        ) : ControllerBase
         where TEntity : class, new()
     {
         [HttpGet]

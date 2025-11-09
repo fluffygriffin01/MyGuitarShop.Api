@@ -17,6 +17,9 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.10" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.10" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
@@ -24,10 +27,6 @@
     <ProjectReference Include="..\MyGuitarShop.Common\MyGuitarShop.Common.csproj" />
     <ProjectReference Include="..\MyGuitarShop.Data.Ado\MyGuitarShop.Data.Ado.csproj" />
     <ProjectReference Include="..\MyGuitarShop.Data.EFCore\MyGuitarShop.Data.EFCore.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\EFCoreControllers\" />
   </ItemGroup>
 
 </Project>
