@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MyGuitarShop.Data.Ado.Factories;
 using MyGuitarShop.Data.EFCore.Context;
 
-namespace MyGuitarShop.Api.Controllers
+namespace MyGuitarShop.Api.Controllers.AdoController
 {
     [Route("api/[controller]")]
     [ApiController]

@@ -3,7 +3,7 @@ using MyGuitarShop.Common.Dtos;
 using MyGuitarShop.Common.Interfaces;
 using MyGuitarShop.Data.Ado.Repository;
 
-namespace MyGuitarShop.Api.Controllers
+namespace MyGuitarShop.Api.Controllers.AdoController
 {
     [Route("api/[controller]")]
     [ApiController]

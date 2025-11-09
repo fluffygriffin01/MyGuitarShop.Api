@@ -26,4 +26,8 @@
     <ProjectReference Include="..\MyGuitarShop.Data.EFCore\MyGuitarShop.Data.EFCore.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\EFCoreControllers\" />
+  </ItemGroup>
+
 </Project>
