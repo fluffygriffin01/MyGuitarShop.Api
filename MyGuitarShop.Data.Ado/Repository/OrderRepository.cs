@@ -27,16 +27,16 @@ namespace MyGuitarShop.Data.Ado.Repository
                     var order = new OrderDto
                     {
                         OrderID = reader.GetInt32(reader.GetOrdinal("OrderID")),
-                        CustomerID = reader.IsDBNull(reader.GetOrdinal("CustomerID")) ? null : reader.GetInt32(reader.GetOrdinal("CustomerID")),
-                        OrderDate = reader.GetDateTime(reader.GetOrdinal("OrderDate")),
-                        ShipAmount = reader.GetDecimal(reader.GetOrdinal("ShipAmount")),
-                        TaxAmount = reader.GetDecimal(reader.GetOrdinal("TaxAmount")),
-                        ShipDate = reader.IsDBNull(reader.GetOrdinal("ShipDate")) ? null : reader.GetDateTime(reader.GetOrdinal("ShipDate")),
-                        ShipAddressID = reader.GetInt32(reader.GetOrdinal("ShipAddressID")),
-                        CardType = reader.GetString(reader.GetOrdinal("CardType")),
-                        CardNumber = reader.GetString(reader.GetOrdinal("CardNumber")),
-                        CardExpires = reader.GetString(reader.GetOrdinal("CardExpires")),
-                        BillingAddressID = reader.GetInt32(reader.GetOrdinal("BillingAddressID"))
+                        Customer = reader.IsDBNull(reader.GetOrdinal("CustomerID")) ? null : reader.GetInt32(reader.GetOrdinal("CustomerID")),
+                        //OrderDate = reader.GetDateTime(reader.GetOrdinal("OrderDate")),
+                        //ShipAmount = reader.GetDecimal(reader.GetOrdinal("ShipAmount")),
+                        //TaxAmount = reader.GetDecimal(reader.GetOrdinal("TaxAmount")),
+                        //ShipDate = reader.IsDBNull(reader.GetOrdinal("ShipDate")) ? null : reader.GetDateTime(reader.GetOrdinal("ShipDate")),
+                        ShipAddress = reader.GetInt32(reader.GetOrdinal("ShipAddressID")),
+                        //CardType = reader.GetString(reader.GetOrdinal("CardType")),
+                        //CardNumber = reader.GetString(reader.GetOrdinal("CardNumber")),
+                        //CardExpires = reader.GetString(reader.GetOrdinal("CardExpires")),
+                        BillingAddress = reader.GetInt32(reader.GetOrdinal("BillingAddressID"))
                     };
                     orders.Add(order);
                 }
@@ -56,7 +56,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                     BEGIN TRANSACTION;
 
                     DECLARE @BillingAddressID INT;
-                    DECLARE @ShippingAddressID INT;
+                    DECLARE @ShipAddressID INT;
                     DECLARE @OrderID INT;
 
                     -- Insert Billing Address
@@ -69,11 +69,11 @@ namespace MyGuitarShop.Data.Ado.Repository
                     INSERT INTO Addresses (CustomerID, Line1, Line2, City, State, ZipCode, Phone, Disabled)
                     VALUES (@S_CustomerID, @S_Line1, @S_Line2, @S_City, @S_State, @S_ZipCode, @S_Phone, @S_Disabled);
 
-                    SET @ShippingAddressID = SCOPE_IDENTITY();
+                    SET @ShipAddressID = SCOPE_IDENTITY();
 
                     -- Insert Order
                     INSERT INTO Orders (CustomerID, OrderDate, ShipAmount, TaxAmount, ShipDate, ShipAddressID, CardType, CardNumber, CardExpires, BillingAddressID)
-                    VALUES (@CustomerID, @OrderDate, @ShipAmount, @TaxAmount, @ShipDate, @ShippingAddressID, @CardType, @CardNumber, @CardExpires, @BillingAddressID);
+                    VALUES (@CustomerID, @OrderDate, @ShipAmount, @TaxAmount, @ShipDate, @ShipAddressID, @CardType, @CardNumber, @CardExpires, @BillingAddressID);
 
                     SET @OrderID = SCOPE_IDENTITY();
 
@@ -121,13 +121,13 @@ namespace MyGuitarShop.Data.Ado.Repository
                 command.Parameters.AddWithValue("@B_Disabled", dto.BillingAddress.Disabled);
 
                 // For shipping address
-                command.Parameters.AddWithValue("@S_Line1", dto.ShippingAddress.Line1);
-                command.Parameters.AddWithValue("@S_Line2", dto.ShippingAddress.Line2);
-                command.Parameters.AddWithValue("@S_City", dto.ShippingAddress.City);
-                command.Parameters.AddWithValue("@S_State", dto.ShippingAddress.State);
-                command.Parameters.AddWithValue("@S_ZipCode", dto.ShippingAddress.ZipCode);
-                command.Parameters.AddWithValue("@S_Phone", dto.ShippingAddress.Phone);
-                command.Parameters.AddWithValue("@S_Disabled", dto.ShippingAddress.Disabled);
+                command.Parameters.AddWithValue("@S_Line1", dto.ShipAddress.Line1);
+                command.Parameters.AddWithValue("@S_Line2", dto.ShipAddress.Line2);
+                command.Parameters.AddWithValue("@S_City", dto.ShipAddress.City);
+                command.Parameters.AddWithValue("@S_State", dto.ShipAddress.State);
+                command.Parameters.AddWithValue("@S_ZipCode", dto.ShipAddress.ZipCode);
+                command.Parameters.AddWithValue("@S_Phone", dto.ShipAddress.Phone);
+                command.Parameters.AddWithValue("@S_Disabled", dto.ShipAddress.Disabled);
 
                 // For order
                 command.Parameters.AddWithValue("@OrderDate", DateTime.UtcNow);
@@ -167,16 +167,16 @@ namespace MyGuitarShop.Data.Ado.Repository
                     order = new OrderDto
                     {
                         OrderID = reader.GetInt32(reader.GetOrdinal("OrderID")),
-                        CustomerID = reader.IsDBNull(reader.GetOrdinal("CustomerID")) ? null : reader.GetInt32(reader.GetOrdinal("CustomerID")),
-                        OrderDate = reader.GetDateTime(reader.GetOrdinal("OrderDate")),
-                        ShipAmount = reader.GetDecimal(reader.GetOrdinal("ShipAmount")),
-                        TaxAmount = reader.GetDecimal(reader.GetOrdinal("TaxAmount")),
-                        ShipDate = reader.IsDBNull(reader.GetOrdinal("ShipDate")) ? null : reader.GetDateTime(reader.GetOrdinal("ShipDate")),
-                        ShipAddressID = reader.GetInt32(reader.GetOrdinal("ShipAddressID")),
-                        CardType = reader.GetString(reader.GetOrdinal("CardType")),
-                        CardNumber = reader.GetString(reader.GetOrdinal("CardNumber")),
-                        CardExpires = reader.GetString(reader.GetOrdinal("CardExpires")),
-                        BillingAddressID = reader.GetInt32(reader.GetOrdinal("BillingAddressID"))
+                        Customer = reader.IsDBNull(reader.GetOrdinal("CustomerID")) ? null : reader.GetInt32(reader.GetOrdinal("CustomerID")),
+                        //OrderDate = reader.GetDateTime(reader.GetOrdinal("OrderDate")),
+                        //ShipAmount = reader.GetDecimal(reader.GetOrdinal("ShipAmount")),
+                        //TaxAmount = reader.GetDecimal(reader.GetOrdinal("TaxAmount")),
+                        //ShipDate = reader.IsDBNull(reader.GetOrdinal("ShipDate")) ? null : reader.GetDateTime(reader.GetOrdinal("ShipDate")),
+                        ShipAddress = reader.GetInt32(reader.GetOrdinal("ShipAddressID")),
+                        //CardType = reader.GetString(reader.GetOrdinal("CardType")),
+                        //CardNumber = reader.GetString(reader.GetOrdinal("CardNumber")),
+                        //CardExpires = reader.GetString(reader.GetOrdinal("CardExpires")),
+                        BillingAddress = reader.GetInt32(reader.GetOrdinal("BillingAddressID"))
                     };
                 }
             }
@@ -210,13 +210,13 @@ namespace MyGuitarShop.Data.Ado.Repository
                 command.Parameters.AddWithValue("@OrderID", id);
                 command.Parameters.AddWithValue("@CustomerID", dto.CustomerID ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@OrderDate", DateTime.UtcNow);
-                command.Parameters.AddWithValue("@ShipAmount", dto.ShipAmount);
-                command.Parameters.AddWithValue("@TaxAmount", dto.TaxAmount);
-                command.Parameters.AddWithValue("@ShipDate", dto.ShipDate ?? (object)DBNull.Value);
+                //command.Parameters.AddWithValue("@ShipAmount", dto.ShipAmount);
+                //command.Parameters.AddWithValue("@TaxAmount", dto.TaxAmount);
+                //command.Parameters.AddWithValue("@ShipDate", dto.ShipDate ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@ShipAddressID", dto.ShipAddressID);
-                command.Parameters.AddWithValue("@CardType", dto.CardType);
-                command.Parameters.AddWithValue("@CardNumber", dto.CardNumber);
-                command.Parameters.AddWithValue("@CardExpires", dto.CardExpires);
+                //command.Parameters.AddWithValue("@CardType", dto.CardType);
+                //command.Parameters.AddWithValue("@CardNumber", dto.CardNumber);
+                //command.Parameters.AddWithValue("@CardExpires", dto.CardExpires);
                 command.Parameters.AddWithValue("@BillingAddressID", dto.BillingAddressID);
                 return await command.ExecuteNonQueryAsync();
             }

@@ -6,7 +6,7 @@ namespace MyGuitarShop.Common.Dtos
     {
         public int? OrderID { get; set; } = null;
         public CustomerDto? Customer { get; set; } = null;
-        public required AddressDto ShippingAddress { get; set; }
+        public required AddressDto ShipAddress { get; set; }
         public required AddressDto BillingAddress { get; set; }
         public required List<OrderItemDto> Items { get; set; }
     }
