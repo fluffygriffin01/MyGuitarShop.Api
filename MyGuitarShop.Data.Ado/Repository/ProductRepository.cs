@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using MyGuitarShop.Common.Dtos;
 using MyGuitarShop.Common.Interfaces;
+using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
 
 namespace MyGuitarShop.Data.Ado.Repository
@@ -9,11 +10,11 @@ namespace MyGuitarShop.Data.Ado.Repository
     public class ProductRepository(
         ILogger<ProductRepository> logger,
         SqlConnectionFactory sqlConnectionFactory)
-        : IRepository<ProductDto>
+        : IRepository<ProductEntity, ProductDto>
     {
-        public async Task<IEnumerable<ProductDto>> GetAllAsync()
+        public async Task<IEnumerable<ProductEntity>> GetAllAsync()
         {
-            var products = new List<ProductDto>();
+            var products = new List<ProductEntity>();
 
             try
             {
@@ -23,7 +24,7 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 while (await reader.ReadAsync())
                 {
-                    var product = new ProductDto
+                    var product = new ProductEntity
                     {
                         ProductID = reader.GetInt32(reader.GetOrdinal("ProductID")),
                         CategoryID = reader.IsDBNull(reader.GetOrdinal("CategoryID")) ? null : reader.GetInt32(reader.GetOrdinal("CategoryID")),
@@ -72,9 +73,9 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<ProductDto?> FindByIdAsync(int id)
+        public async Task<ProductEntity?> FindByIdAsync(int id)
         {
-            ProductDto? product = null;
+            ProductEntity? product = null;
 
             try
             {
@@ -85,7 +86,7 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 if (await reader.ReadAsync())
                 {
-                    product = new ProductDto
+                    product = new ProductEntity
                     {
                         ProductID = reader.GetInt32(reader.GetOrdinal("ProductID")),
                         CategoryID = reader.IsDBNull(reader.GetOrdinal("CategoryID")) ? null : reader.GetInt32(reader.GetOrdinal("CategoryID")),
@@ -105,9 +106,9 @@ namespace MyGuitarShop.Data.Ado.Repository
             return product;
         }
 
-        public async Task<ProductDto?> FindByUniqueAsync(string productCode)
+        public async Task<ProductEntity?> FindByUniqueAsync(string productCode)
         {
-            ProductDto? product = null;
+            ProductEntity? product = null;
             try
             {
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
@@ -117,7 +118,7 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 if (await reader.ReadAsync())
                 {
-                    product = new ProductDto
+                    product = new ProductEntity
                     {
                         ProductID = reader.GetInt32(reader.GetOrdinal("ProductID")),
                         CategoryID = reader.IsDBNull(reader.GetOrdinal("CategoryID")) ? null : reader.GetInt32(reader.GetOrdinal("CategoryID")),

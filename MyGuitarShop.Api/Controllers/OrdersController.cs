@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyGuitarShop.Common.Dtos;
 using MyGuitarShop.Common.Interfaces;
+using MyGuitarShop.Data.Ado.Entities;
 
 namespace MyGuitarShop.Api.Controllers
 {
@@ -8,7 +9,8 @@ namespace MyGuitarShop.Api.Controllers
     [ApiController]
     public class OrdersController(
         ILogger<OrdersController> logger,
-        IRepository<OrderDto> repo)
+        IRepository<OrderEntity, OrderDto> repo,
+        IRepository<OrderItemEntity, OrderItemDto> itemRepo)
         : ControllerBase
     {
         [HttpGet]
@@ -49,7 +51,34 @@ namespace MyGuitarShop.Api.Controllers
         {
             try
             {
+                var neworder = new OrderDto
+                {
+                    Customer = newOrder.Customer,
+                    OrderDate = DateTime.UtcNow,
+                    ShipAmount = newOrder.ShipAmount,
+                    TaxAmount = newOrder.TaxAmount,
+                    ShipDate = newOrder.ShipDate,
+                    CardType = newOrder.CardType,
+                    CardNumber = newOrder.CardNumber,
+                    CardExpires = newOrder.CardExpires,
+                    Items = newOrder.Items
+                };
+
                 var numOrdersCreated = await repo.InsertAsync(newOrder);
+
+                foreach (var item in newOrder.Items)
+                {
+                    var orderItem = new OrderItemDto
+                    {
+                        OrderID = neworder.OrderID,
+                        ProductID = item.ProductID,
+                        ItemPrice = item.ItemPrice,
+                        DiscountAmount = item.DiscountAmount,
+                        Quantity = item.Quantity
+                    };
+                    await itemRepo.InsertAsync(orderItem);
+                }
+
                 return Ok($"{numOrdersCreated} new orders created");
             }
             catch (Exception ex)

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using MyGuitarShop.Common.Dtos;
 using MyGuitarShop.Common.Interfaces;
+using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
 
 namespace MyGuitarShop.Data.Ado.Repository
@@ -9,11 +10,11 @@ namespace MyGuitarShop.Data.Ado.Repository
     public class AddressRepository(
         ILogger<AddressRepository> logger,
         SqlConnectionFactory sqlConnectionFactory)
-        : IRepository<AddressDto>
+        : IRepository<AddressEntity, AddressDto>
     {
-        public async Task<IEnumerable<AddressDto>> GetAllAsync()
+        public async Task<IEnumerable<AddressEntity>> GetAllAsync()
         {
-            var addresses = new List<AddressDto>();
+            var addresses = new List<AddressEntity>();
 
             try
             {
@@ -23,7 +24,7 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 while (await reader.ReadAsync())
                 {
-                    var address = new AddressDto
+                    var address = new AddressEntity
                     {
                         AddressID = reader.GetInt32(reader.GetOrdinal("AddressID")),
                         CustomerID = reader.IsDBNull(reader.GetOrdinal("CustomerID")) ? null : reader.GetInt32(reader.GetOrdinal("CustomerID")),
@@ -74,9 +75,9 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<AddressDto?> FindByIdAsync(int id)
+        public async Task<AddressEntity?> FindByIdAsync(int id)
         {
-            AddressDto? address = null;
+            AddressEntity? address = null;
 
             try
             {
@@ -87,7 +88,7 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 if (await reader.ReadAsync())
                 {
-                    address = new AddressDto
+                    address = new AddressEntity
                     {
                         AddressID = reader.GetInt32(reader.GetOrdinal("AddressID")),
                         CustomerID = reader.IsDBNull(reader.GetOrdinal("CustomerID")) ? null : reader.GetInt32(reader.GetOrdinal("CustomerID")),

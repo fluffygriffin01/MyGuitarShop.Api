@@ -1,5 +1,6 @@
 using MyGuitarShop.Common.Dtos;
 using MyGuitarShop.Common.Interfaces;
+using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
 using MyGuitarShop.Data.Ado.Repository;
 using System.Diagnostics;
@@ -79,13 +80,13 @@ namespace MyGuitarShop.Api
                 ?? throw new InvalidOperationException("MyGuitarShop connection string not found.");
 
             builder.Services.AddSingleton(new SqlConnectionFactory(connectionString));
-            builder.Services.AddScoped<IRepository<AddressDto>, AddressRepository>();
-            builder.Services.AddScoped<IRepository<AdministratorDto>, AdministratorRepository>();
-            builder.Services.AddScoped<IRepository<CategoryDto>, CategoryRepository>();
-            builder.Services.AddScoped<IRepository<CustomerDto>, CustomerRepository>();
-            builder.Services.AddScoped<IRepository<OrderItemDto>, OrderItemRepository>();
-            builder.Services.AddScoped<IRepository<OrderDto>, OrderRepository>();
-            builder.Services.AddScoped<IRepository<ProductDto>, ProductRepository>();
+            builder.Services.AddScoped<IRepository<AddressEntity, AddressDto>, AddressRepository>();
+            builder.Services.AddScoped<IRepository<AdministratorEntity, AdministratorDto>, AdministratorRepository>();
+            builder.Services.AddScoped<IRepository<CategoryEntity, CategoryDto>, CategoryRepository>();
+            builder.Services.AddScoped<IRepository<CustomerEntity, CustomerDto>, CustomerRepository>();
+            builder.Services.AddScoped<IRepository<OrderItemEntity, OrderItemDto>, OrderItemRepository>();
+            builder.Services.AddScoped<IRepository<OrderEntity, OrderDto>, OrderRepository>();
+            builder.Services.AddScoped<IRepository<ProductEntity, ProductDto>, ProductRepository>();
 
             builder.Services.AddControllers();
         }

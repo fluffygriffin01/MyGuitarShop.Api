@@ -2,7 +2,7 @@
 
 namespace MyGuitarShop.Data.Ado.Entities
 {
-    internal class CategoryEntity
+    public class CategoryEntity
     {
         public required int CategoryID { get; set; }
         [MaxLength(255)]
