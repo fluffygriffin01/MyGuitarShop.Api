@@ -53,7 +53,7 @@ namespace MyGuitarShop.Api.Controllers
             {
                 var neworder = new OrderDto
                 {
-                    Customer = newOrder.Customer,
+                    CustomerID = newOrder.CustomerID,
                     OrderDate = DateTime.UtcNow,
                     ShipAmount = newOrder.ShipAmount,
                     TaxAmount = newOrder.TaxAmount,

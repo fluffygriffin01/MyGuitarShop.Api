@@ -5,8 +5,8 @@ namespace MyGuitarShop.Common.Dtos
     public class OrderDto
     {
         public int? OrderID { get; set; } = null;
-        public CustomerDto? Customer { get; set; } = null;
-        public required DateTime OrderDate { get; set; }
+        public int? CustomerID { get; set; } = null;
+        public DateTime? OrderDate { get; set; }
         public required decimal ShipAmount { get; set; }
         public required decimal TaxAmount { get; set; }
         public DateTime? ShipDate { get; set; }

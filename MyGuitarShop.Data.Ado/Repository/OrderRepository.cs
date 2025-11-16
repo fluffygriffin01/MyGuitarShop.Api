@@ -58,32 +58,12 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                     DECLARE @BillingAddressID INT;
                     DECLARE @ShipAddressID INT;
-                    DECLARE @OrderID INT;
-
-                    SET @BillingAddressID = SELECT BillingAddressID from Customers where CustomerID = @CustomerID;
-                    SET @ShipAddressID = SELECT ShippingAddressID from Customers where CustomerID = @CustomerID;
+                    SELECT @BillingAddressID = BillingAddressID from Customers where CustomerID = @CustomerID;
+                    SELECT @ShipAddressID = ShippingAddressID from Customers where CustomerID = @CustomerID;
 
                     -- Insert Order
                     INSERT INTO Orders (CustomerID, OrderDate, ShipAmount, TaxAmount, ShipDate, ShipAddressID, CardType, CardNumber, CardExpires, BillingAddressID)
                     VALUES (@CustomerID, @OrderDate, @ShipAmount, @TaxAmount, @ShipDate, @ShipAddressID, @CardType, @CardNumber, @CardExpires, @BillingAddressID);
-
-                    SET @OrderID = SCOPE_IDENTITY();
-
-                    -- Insert Order Items
-                        INSERT INTO OrderItems (OrderID, ProductID, ItemPrice, DiscountAmount, Quantity)
-                        SELECT 
-                            @OrderID,
-                            ProductID,
-                            ItemPrice,
-                            DiscountAmount,
-                            Quantity
-                        FROM OPENJSON(@OrderItems)
-                        WITH (
-                            ProductID INT,
-                            ItemPrice DECIMAL(10,2),
-                            DiscountAmount DECIMAL(10,2),
-                            Quantity INT,
-                        );
 
                     -- Commit if all succeeded
                     COMMIT TRANSACTION;
@@ -91,7 +71,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 BEGIN CATCH
                     ROLLBACK TRANSACTION;
 
-                    DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE('Error creating order');
+                    DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
                     DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
                     DECLARE @ErrorState INT = ERROR_STATE();
                     RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
@@ -101,20 +81,14 @@ namespace MyGuitarShop.Data.Ado.Repository
             {
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
                 await using var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CustomerID", dto.Customer ?? (object)DBNull.Value);
-
-                // For order
+                command.Parameters.AddWithValue("@CustomerID", dto.CustomerID);
                 command.Parameters.AddWithValue("@OrderDate", DateTime.UtcNow);
-                command.Parameters.AddWithValue("@ShipAmount", 10);
-                command.Parameters.AddWithValue("@TaxAmount", 20);
+                command.Parameters.AddWithValue("@ShipAmount", dto.ShipAmount);
+                command.Parameters.AddWithValue("@TaxAmount", dto.TaxAmount);
                 command.Parameters.AddWithValue("@ShipDate", DBNull.Value);
-                command.Parameters.AddWithValue("@CardType", "Master");
-                command.Parameters.AddWithValue("@CardNumber", "1001");
-                command.Parameters.AddWithValue("@CardExpires", "04/2025");
-
-                // For order items
-                var jsonItems = JsonConvert.SerializeObject(dto.Items);
-                command.Parameters.AddWithValue("@OrderItems", jsonItems);
+                command.Parameters.AddWithValue("@CardType", dto.CardType);
+                command.Parameters.AddWithValue("@CardNumber", dto.CardNumber);
+                command.Parameters.AddWithValue("@CardExpires", dto.CardExpires);
 
                 return await command.ExecuteNonQueryAsync();
             }
@@ -182,15 +156,15 @@ namespace MyGuitarShop.Data.Ado.Repository
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
                 await using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@OrderID", id);
-                command.Parameters.AddWithValue("@CustomerID", dto.Customer ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@CustomerID", dto.CustomerID);
                 command.Parameters.AddWithValue("@OrderDate", DateTime.UtcNow);
-                //command.Parameters.AddWithValue("@ShipAmount", dto.ShipAmount);
-                //command.Parameters.AddWithValue("@TaxAmount", dto.TaxAmount);
-                //command.Parameters.AddWithValue("@ShipDate", dto.ShipDate ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@ShipAmount", dto.ShipAmount);
+                command.Parameters.AddWithValue("@TaxAmount", dto.TaxAmount);
+                command.Parameters.AddWithValue("@ShipDate", dto.ShipDate ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@ShipAddressID", dto.ShipAddressID);
-                //command.Parameters.AddWithValue("@CardType", dto.CardType);
-                //command.Parameters.AddWithValue("@CardNumber", dto.CardNumber);
-                //command.Parameters.AddWithValue("@CardExpires", dto.CardExpires);
+                command.Parameters.AddWithValue("@CardType", dto.CardType);
+                command.Parameters.AddWithValue("@CardNumber", dto.CardNumber);
+                command.Parameters.AddWithValue("@CardExpires", dto.CardExpires);
                 command.Parameters.AddWithValue("@BillingAddressID", dto.BillingAddressID);
                 return await command.ExecuteNonQueryAsync();
             }
