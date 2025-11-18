@@ -18,6 +18,6 @@ namespace MyGuitarShop.Common.Dtos
         [MaxLength(7)]
         public required string CardExpires { get; set; }
         public int? BillingAddressID { get; set; } = null;
-        public required List<OrderItemDto> Items { get; set; }
+        public required List<ProductDto> Items { get; set; }
     }
 }

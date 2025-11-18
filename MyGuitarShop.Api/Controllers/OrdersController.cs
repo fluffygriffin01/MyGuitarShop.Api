@@ -65,20 +65,6 @@ namespace MyGuitarShop.Api.Controllers
                 };
 
                 var numOrdersCreated = await repo.InsertAsync(newOrder);
-
-                foreach (var item in newOrder.Items)
-                {
-                    var orderItem = new OrderItemDto
-                    {
-                        OrderID = neworder.OrderID,
-                        ProductID = item.ProductID,
-                        ItemPrice = item.ItemPrice,
-                        DiscountAmount = item.DiscountAmount,
-                        Quantity = item.Quantity
-                    };
-                    await itemRepo.InsertAsync(orderItem);
-                }
-
                 return Ok($"{numOrdersCreated} new orders created");
             }
             catch (Exception ex)
