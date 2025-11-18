@@ -61,6 +61,8 @@ namespace MyGuitarShop.Data.Ado.Repository
                     DECLARE @BillingAddressID INT;
                     DECLARE @ShipAddressID INT;
                     DECLARE @OrderID INT;
+                    DECLARE @ItemPrice DECIMAL(18,2);
+                    DECLARE @DiscountAmount DECIMAL(18,2);
 
                     SELECT @BillingAddressID = BillingAddressID from Customers where CustomerID = @CustomerID;
                     SELECT @ShipAddressID = ShippingAddressID from Customers where CustomerID = @CustomerID;
@@ -80,8 +82,11 @@ namespace MyGuitarShop.Data.Ado.Repository
                 {
                     var item = dto.Items[i];
                     query += @"
+                        SELECT @ItemPrice = ListPrice from Products where ProductID = @ProductID" + i + @";
+                        SELECT @DiscountAmount = (@ItemPrice * DiscountPercent * 0.01) from Products where ProductID = @ProductID" + i + @";
+
                         INSERT INTO OrderItems (OrderID, ProductID, ItemPrice, DiscountAmount, Quantity)
-                        VALUES (@OrderID, @ProductID" + i + @", @ItemPrice" + i + @", @DiscountAmount" + i + @", @Quantity" + i + @");
+                        VALUES (@OrderID, @ProductID" + i + @", @ItemPrice, @DiscountAmount, @Quantity" + i + @");
                         ";
                 }
 
