@@ -5,6 +5,7 @@ using MyGuitarShop.Common.Interfaces;
 using MyGuitarShop.Data.Ado.Factories;
 using MyGuitarShop.Data.Ado.Repository;
 using MyGuitarShop.Data.EFCore.Context;
+using MyGuitarShop.Data.MongoDb.Services;
 using System.Diagnostics;
 
 namespace MyGuitarShop.Api
@@ -19,6 +20,12 @@ namespace MyGuitarShop.Api
 
                 AddLogging(builder);
                 AddServices(builder);
+
+                builder.Host.UseDefaultServiceProvider(options =>
+                {
+                    options.ValidateOnBuild = true;
+                    options.ValidateScopes = true;
+                });
 
                 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
                 if (builder.Environment.IsDevelopment())
@@ -113,8 +120,9 @@ namespace MyGuitarShop.Api
                 var client = sp.GetRequiredService<IMongoClient>();
                 return client.GetDatabase("MyGuitarShopCluster");
             });
+            builder.Services.AddScoped<ProductService>();
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddControllersAsServices();
         }
     }
 }
