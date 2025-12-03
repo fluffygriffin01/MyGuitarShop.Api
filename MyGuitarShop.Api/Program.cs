@@ -1,10 +1,12 @@
-
-
-using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
+using MyGuitarShop.Common.Dtos;
+using MyGuitarShop.Common.Interfaces;
 using MyGuitarShop.Data.Ado.Factories;
 using MyGuitarShop.Data.Ado.Repository;
+using MyGuitarShop.Data.EFCore.Context;
+using MyGuitarShop.Data.MongoDb.Services;
 using System.Diagnostics;
-using System.Runtime.CompilerServices;
 
 namespace MyGuitarShop.Api
 {
@@ -18,6 +20,12 @@ namespace MyGuitarShop.Api
 
                 AddLogging(builder);
                 AddServices(builder);
+
+                builder.Host.UseDefaultServiceProvider(options =>
+                {
+                    options.ValidateOnBuild = true;
+                    options.ValidateScopes = true;
+                });
 
                 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
                 if (builder.Environment.IsDevelopment())
@@ -80,11 +88,41 @@ namespace MyGuitarShop.Api
             var connectionString = builder.Configuration.GetConnectionString(name: "MyGuitarShop")
                 ?? throw new InvalidOperationException("MyGuitarShop connection string not found.");
 
+
+            // ADO.NET Repositories
             builder.Services.AddSingleton(new SqlConnectionFactory(connectionString));
+            builder.Services.AddScoped<IRepository<AddressDto>, AddressRepository>();
+            builder.Services.AddScoped<IRepository<AdministratorDto>, AdministratorRepository>();
+            builder.Services.AddScoped<IRepository<CategoryDto>, CategoryRepository>();
+            builder.Services.AddScoped<IRepository<CustomerDto>, CustomerRepository>();
+            builder.Services.AddScoped<IRepository<OrderItemDto>, OrderItemRepository>();
+            builder.Services.AddScoped<IRepository<OrderDto>, OrderRepository>();
+            builder.Services.AddScoped<IRepository<ProductDto>, ProductRepository>();
 
-            builder.Services.AddScoped<ProductRepository>();
+            // EF Core Repositories
+            builder.Services.AddDbContextFactory<MyGuitarShopContext>(options =>
+                options.UseSqlServer(connectionString));
+            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.AddressRepository>();
+            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.AdministratorRepository>();           
+            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.CategoryRepository>();
+            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.CustomerRepository>();
+            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.OrderItemRepository>();
+            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.OrderRepository>();           
+            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.ProductRepository>();
 
-            builder.Services.AddControllers();
+            // MongoDB Repositories
+            var mongoConnectionString = builder.Configuration.GetConnectionString("MongoDb")
+                ?? throw new InvalidOperationException("MongoDb connection string not found.");
+
+            builder.Services.AddSingleton<IMongoClient, MongoClient>(_ => new MongoClient(mongoConnectionString));
+            builder.Services.AddSingleton<IMongoDatabase>(sp =>             
+            {
+                var client = sp.GetRequiredService<IMongoClient>();
+                return client.GetDatabase("MyGuitarShopCluster");
+            });
+            builder.Services.AddScoped<ProductService>();
+
+            builder.Services.AddControllers().AddControllersAsServices();
         }
     }
 }
