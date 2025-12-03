@@ -20,7 +20,7 @@ namespace MyGuitarShop.Api.Controllers
         {
             try
             {
-                var products = await repo.GetAllProductsAsync();
+                var products = await repo.GetAllAsync();
                 return Ok(products.Select(p=>p.ProductName));
             }
             catch (Exception ex)

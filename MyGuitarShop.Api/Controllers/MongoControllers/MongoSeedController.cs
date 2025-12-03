@@ -23,15 +23,16 @@ namespace MyGuitarShop.Api.Controllers.MongoControllers
                 var allProductsFromSql = await productRepo.GetAllAsync();
                 foreach (var product in allProductsFromSql)
                 {
-                    if (!await productService.InsertAsync(new ProductModel
+                    if (!await productService.InsertAsync(new Common.Dtos.ProductDto
                     {
-                        Category = (CategoryType)product.CategoryID!,
+                        CategoryID = product.CategoryID,
                         ProductCode = product.ProductCode,
                         ProductName = product.ProductName,
                         Description = product.Description,
                         ListPrice = product.ListPrice,
                         DiscountPercent = product.DiscountPercent,
-                        DateAdded = product.DateAdded ?? DateTime.UtcNow
+                        DateAdded = product.DateAdded ?? DateTime.UtcNow,
+                        Quantity = 1
                     })) throw new Exception($"Problemms insert {product} into Mongo");
                 }
                 return Ok("All products inserted to Mongo");

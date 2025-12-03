@@ -1,4 +1,4 @@
-﻿namespace MyGuitarShop.Api.Mappers
+﻿namespace MyGuitarShop.Common.Mappers
 {
     public static class AutoReflectionMapper
     {

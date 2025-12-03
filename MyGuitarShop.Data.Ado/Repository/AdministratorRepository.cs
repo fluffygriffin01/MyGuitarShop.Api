@@ -43,31 +43,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             return administrators;
         }
 
-        public async Task<int> InsertAsync(AdministratorDto dto)
-        {
-            const string query = @"
-                INSERT INTO Administrators (EmailAddress, Password, FirstName, LastName)
-                VALUES (@EmailAddress, @Password, @FirstName, @LastName);";
-
-            try
-            {
-                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
-                await using var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@EmailAddress", dto.EmailAddress);
-                command.Parameters.AddWithValue("@Password", dto.Password);
-                command.Parameters.AddWithValue("@FirstName", dto.FirstName);
-                command.Parameters.AddWithValue("@LastName", dto.LastName);
-
-                return await command.ExecuteNonQueryAsync();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex.Message, "Error inserting new administrator");
-                return 0;
-            }
-        }
-
-        public async Task<AdministratorEntity?> FindByIdAsync(int id)
+        public async Task<AdministratorEntity?> FindByIdAsync(string id)
         {
             AdministratorEntity? administrator = null;
 
@@ -97,7 +73,31 @@ namespace MyGuitarShop.Data.Ado.Repository
             return administrator;
         }
 
-        public async Task<int> UpdateAsync(int id, AdministratorDto dto)
+        public async Task<bool> InsertAsync(AdministratorDto dto)
+        {
+            const string query = @"
+                INSERT INTO Administrators (EmailAddress, Password, FirstName, LastName)
+                VALUES (@EmailAddress, @Password, @FirstName, @LastName);";
+
+            try
+            {
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+                await using var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@EmailAddress", dto.EmailAddress);
+                command.Parameters.AddWithValue("@Password", dto.Password);
+                command.Parameters.AddWithValue("@FirstName", dto.FirstName);
+                command.Parameters.AddWithValue("@LastName", dto.LastName);
+
+                return await command.ExecuteNonQueryAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, "Error inserting new administrator");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateAsync(string id, AdministratorDto dto)
         {
             const string query = @"
                 UPDATE Administrators
@@ -116,7 +116,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 command.Parameters.AddWithValue("@Password", dto.Password);
                 command.Parameters.AddWithValue("@FirstName", dto.FirstName);
                 command.Parameters.AddWithValue("@LastName", dto.LastName);
-                return await command.ExecuteNonQueryAsync();
+                return await command.ExecuteNonQueryAsync() > 0;
             }
             catch (Exception ex)
             {
@@ -125,7 +125,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<int> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string id)
         {
             const string query = @"DELETE FROM Administrators WHERE AdminID = @AdminID;";
             try
@@ -133,12 +133,12 @@ namespace MyGuitarShop.Data.Ado.Repository
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
                 await using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@AdminID", id);
-                return await command.ExecuteNonQueryAsync();
+                return await command.ExecuteNonQueryAsync() > 0;
             }
             catch (Exception ex)
             {
                 logger.LogError(ex.Message, $"Error deleting administrator {id}");
-                return 0;
+                return false;
             }
         }
     }

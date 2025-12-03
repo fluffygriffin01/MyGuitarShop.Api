@@ -47,35 +47,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             return addresses;
         }
 
-        public async Task<int> InsertAsync(AddressDto dto)
-        {
-            const string query = @"
-                INSERT INTO Addresses (CustomerID, Line1, Line2, City, State, ZipCode, Phone, Disabled)
-                VALUES (@CustomerID, @Line1, @Line2, @City, @State, @ZipCode, @Phone, @Disabled);";
-
-            try
-            {
-                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
-                await using var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CustomerID", dto.CustomerID);
-                command.Parameters.AddWithValue("@Line1", dto.Line1);
-                command.Parameters.AddWithValue("@Line2", dto.Line2);
-                command.Parameters.AddWithValue("@City", dto.City);
-                command.Parameters.AddWithValue("@State", dto.State);
-                command.Parameters.AddWithValue("@ZipCode", dto.ZipCode);
-                command.Parameters.AddWithValue("@Phone", dto.Phone);
-                command.Parameters.AddWithValue("@Disabled", dto.Disabled);
-
-                return await command.ExecuteNonQueryAsync();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex.Message, "Error inserting new address");
-                return 0;
-            }
-        }
-
-        public async Task<AddressEntity?> FindByIdAsync(int id)
+        public async Task<AddressEntity?> FindByIdAsync(string id)
         {
             AddressEntity? address = null;
 
@@ -109,7 +81,35 @@ namespace MyGuitarShop.Data.Ado.Repository
             return address;
         }
 
-        public async Task<int> UpdateAsync(int id, AddressDto dto)
+        public async Task<bool> InsertAsync(AddressDto dto)
+        {
+            const string query = @"
+                INSERT INTO Addresses (CustomerID, Line1, Line2, City, State, ZipCode, Phone, Disabled)
+                VALUES (@CustomerID, @Line1, @Line2, @City, @State, @ZipCode, @Phone, @Disabled);";
+
+            try
+            {
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+                await using var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CustomerID", dto.CustomerID);
+                command.Parameters.AddWithValue("@Line1", dto.Line1);
+                command.Parameters.AddWithValue("@Line2", dto.Line2);
+                command.Parameters.AddWithValue("@City", dto.City);
+                command.Parameters.AddWithValue("@State", dto.State);
+                command.Parameters.AddWithValue("@ZipCode", dto.ZipCode);
+                command.Parameters.AddWithValue("@Phone", dto.Phone);
+                command.Parameters.AddWithValue("@Disabled", dto.Disabled);
+
+                return await command.ExecuteNonQueryAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, "Error inserting new address");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateAsync(string id, AddressDto dto)
         {
             const string query = @"
                 UPDATE Addresses
@@ -136,7 +136,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 command.Parameters.AddWithValue("@ZipCode", dto.ZipCode);
                 command.Parameters.AddWithValue("@Phone", dto.Phone);
                 command.Parameters.AddWithValue("@Disabled", dto.Disabled);
-                return await command.ExecuteNonQueryAsync();
+                return await command.ExecuteNonQueryAsync() > 0;
             }
             catch (Exception ex)
             {
@@ -145,7 +145,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<int> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string id)
         {
             const string query = @"DELETE FROM Addresses WHERE AddressID = @AddressID;";
             try
@@ -153,12 +153,12 @@ namespace MyGuitarShop.Data.Ado.Repository
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
                 await using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@AddressID", id);
-                return await command.ExecuteNonQueryAsync();
+                return await command.ExecuteNonQueryAsync() > 0;
             }
             catch (Exception ex)
             {
                 logger.LogError(ex.Message, $"Error deleting address {id}");
-                return 0;
+                return false;
             }
         }
     }

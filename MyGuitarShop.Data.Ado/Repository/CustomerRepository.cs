@@ -45,33 +45,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             return customers;
         }
 
-        public async Task<int> InsertAsync(CustomerDto dto)
-        {
-            const string query = @"
-                INSERT INTO Customers (EmailAddress, Password, FirstName, LastName, ShippingAddressID, BillingAddressID)
-                VALUES (@EmailAddress, @Password, @FirstName, @LastName, @ShippingAddressID, @BillingAddressID);";
-
-            try
-            {
-                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
-                await using var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@EmailAddress", dto.EmailAddress);
-                command.Parameters.AddWithValue("@Password", dto.Password);
-                command.Parameters.AddWithValue("@FirstName", dto.FirstName);
-                command.Parameters.AddWithValue("@LastName", dto.LastName);
-                command.Parameters.AddWithValue("@ShippingAddressID", dto.ShippingAddressID ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@BillingAddressID", dto.BillingAddressID ?? (object)DBNull.Value);
-
-                return await command.ExecuteNonQueryAsync();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex.Message, "Error inserting new customer");
-                return 0;
-            }
-        }
-
-        public async Task<CustomerEntity?> FindByIdAsync(int id)
+        public async Task<CustomerEntity?> FindByIdAsync(string id)
         {
             CustomerEntity? customer = null;
 
@@ -134,7 +108,33 @@ namespace MyGuitarShop.Data.Ado.Repository
             return customer;
         }
 
-        public async Task<int> UpdateAsync(int id, CustomerDto dto)
+        public async Task<bool> InsertAsync(CustomerDto dto)
+        {
+            const string query = @"
+                INSERT INTO Customers (EmailAddress, Password, FirstName, LastName, ShippingAddressID, BillingAddressID)
+                VALUES (@EmailAddress, @Password, @FirstName, @LastName, @ShippingAddressID, @BillingAddressID);";
+
+            try
+            {
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+                await using var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@EmailAddress", dto.EmailAddress);
+                command.Parameters.AddWithValue("@Password", dto.Password);
+                command.Parameters.AddWithValue("@FirstName", dto.FirstName);
+                command.Parameters.AddWithValue("@LastName", dto.LastName);
+                command.Parameters.AddWithValue("@ShippingAddressID", dto.ShippingAddressID ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@BillingAddressID", dto.BillingAddressID ?? (object)DBNull.Value);
+
+                return await command.ExecuteNonQueryAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, "Error inserting new customer");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateAsync(string id, CustomerDto dto)
         {
             const string query = @"
                 UPDATE Customers
@@ -157,7 +157,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 command.Parameters.AddWithValue("@LastName", dto.LastName);
                 command.Parameters.AddWithValue("@ShippingAddressID", dto.ShippingAddressID ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("@BillingAddressID", dto.BillingAddressID ?? (object)DBNull.Value);
-                return await command.ExecuteNonQueryAsync();
+                return await command.ExecuteNonQueryAsync() > 0;
             }
             catch (Exception ex)
             {
@@ -166,7 +166,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<int> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string id)
         {
             const string query = @"DELETE FROM Customers WHERE CustomerID = @CustomerID;";
             try
@@ -174,12 +174,12 @@ namespace MyGuitarShop.Data.Ado.Repository
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
                 await using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@CustomerID", id);
-                return await command.ExecuteNonQueryAsync();
+                return await command.ExecuteNonQueryAsync() > 0;
             }
             catch (Exception ex)
             {
                 logger.LogError(ex.Message, $"Error deleting customer {id}");
-                return 0;
+                return false;
             }
         }
     }

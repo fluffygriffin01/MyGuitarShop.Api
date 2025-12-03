@@ -29,7 +29,7 @@ namespace MyGuitarShop.Api.Controllers.AdoController
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(int id)
+        public async Task<IActionResult> GetByIdAsync(string id)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace MyGuitarShop.Api.Controllers.AdoController
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOrderAsync(int id, OrderDto updatedOrder)
+        public async Task<IActionResult> UpdateOrderAsync(string id, OrderDto updatedOrder)
         {
             try
             {
@@ -93,7 +93,7 @@ namespace MyGuitarShop.Api.Controllers.AdoController
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrderAsync(int id)
+        public async Task<IActionResult> DeleteOrderAsync(string id)
         {
             try
             {

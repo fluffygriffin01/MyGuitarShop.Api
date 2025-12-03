@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyGuitarShop.Common.Dtos;
 using MyGuitarShop.Common.Interfaces;
+using MyGuitarShop.Data.Ado.Entities;
 
 namespace MyGuitarShop.Api.Controllers.AdoController
 {
@@ -8,7 +9,7 @@ namespace MyGuitarShop.Api.Controllers.AdoController
     [ApiController]
     public class ProductsController(
         ILogger<ProductsController> logger,
-        IRepository<ProductDto> repo)
+        IRepository<ProductEntity, ProductDto> repo)
         : ControllerBase
     {
         [HttpGet]
@@ -27,7 +28,7 @@ namespace MyGuitarShop.Api.Controllers.AdoController
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(int id)
+        public async Task<IActionResult> GetByIdAsync(string id)
         {
             try
             {
@@ -60,7 +61,7 @@ namespace MyGuitarShop.Api.Controllers.AdoController
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProductAsync(int id, ProductDto updatedProduct)
+        public async Task<IActionResult> UpdateProductAsync(string id, ProductDto updatedProduct)
         {
             try
             {
@@ -78,7 +79,7 @@ namespace MyGuitarShop.Api.Controllers.AdoController
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteProductAsync(int id)
+        public async Task<IActionResult> DeleteProductAsync(string id)
         {
             try
             {

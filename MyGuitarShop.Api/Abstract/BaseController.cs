@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MyGuitarShop.Api.Mappers;
 using MyGuitarShop.Common.Interfaces;
+using MyGuitarShop.Common.Mappers;
 
 namespace MyGuitarShop.Api.Abstract
 {
     [ApiController]
     [Route("api/[controller]")]
     public abstract class BaseController<TDto, TEntity>(
-        IRepository<TEntity> repository,
+        IRepository<TEntity, TDto> repository,
         ILogger<BaseController<TDto, TEntity>> logger
         ) : ControllerBase where TEntity : class, new()
     {
@@ -27,7 +27,7 @@ namespace MyGuitarShop.Api.Abstract
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetByIdAsync(int id)
+        public async Task<IActionResult> GetByIdAsync(string id)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace MyGuitarShop.Api.Abstract
                 if (entity == null)
                     throw new Exception("Mapping resulted in null entity");
 
-                var numEntitiesCreated = await repository.InsertAsync(entity);
+                var numEntitiesCreated = await repository.InsertAsync(dto);
                 return Ok($"{numEntitiesCreated} new entities created");
             }
             catch (Exception ex)
@@ -61,7 +61,7 @@ namespace MyGuitarShop.Api.Abstract
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateAsync(int id, TDto dto)
+        public async Task<IActionResult> UpdateAsync(string id, TDto dto)
         {
             try
             {
@@ -72,7 +72,7 @@ namespace MyGuitarShop.Api.Abstract
                 if (entity == null)
                     throw new Exception("Mapping resulted in null entity");
 
-                var entitiesUpdated = await repository.UpdateAsync(id, entity);
+                var entitiesUpdated = await repository.UpdateAsync(id, dto);
                 return Ok($"{entitiesUpdated} entities updated");
             }
             catch (Exception ex)
@@ -83,7 +83,7 @@ namespace MyGuitarShop.Api.Abstract
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
+        public async Task<IActionResult> DeleteAsync(string id)
         {
             try
             {

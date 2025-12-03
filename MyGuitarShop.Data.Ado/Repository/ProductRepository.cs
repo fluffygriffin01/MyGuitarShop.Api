@@ -46,34 +46,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             return products;
         }
 
-        public async Task<int> InsertAsync(ProductDto dto)
-        {
-            const string query = @"
-                INSERT INTO Products (CategoryID, ProductCode, ProductName, Description, ListPrice, DiscountPercent, DateAdded)
-                VALUES (@CategoryID, @ProductCode, @ProductName, @Description, @ListPrice, @DiscountPercent, @DateAdded);";
-
-            try
-            {
-                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
-                await using var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CategoryID", dto.CategoryID);
-                command.Parameters.AddWithValue("@ProductCode", dto.ProductCode);
-                command.Parameters.AddWithValue("@ProductName", dto.ProductName);
-                command.Parameters.AddWithValue("@Description", dto.Description);
-                command.Parameters.AddWithValue("@ListPrice", dto.ListPrice);
-                command.Parameters.AddWithValue("@DiscountPercent", dto.DiscountPercent);
-                command.Parameters.AddWithValue("@DateAdded", DateTime.UtcNow);
-
-                return await command.ExecuteNonQueryAsync();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex.Message, "Error inserting new product");
-                return 0;
-            }
-        }
-
-        public async Task<ProductEntity?> FindByIdAsync(int id)
+        public async Task<ProductEntity?> FindByIdAsync(string id)
         {
             ProductEntity? product = null;
 
@@ -138,7 +111,34 @@ namespace MyGuitarShop.Data.Ado.Repository
             return product;
         }
 
-        public async Task<int> UpdateAsync(int id, ProductDto dto)
+        public async Task<bool> InsertAsync(ProductDto dto)
+        {
+            const string query = @"
+                INSERT INTO Products (CategoryID, ProductCode, ProductName, Description, ListPrice, DiscountPercent, DateAdded)
+                VALUES (@CategoryID, @ProductCode, @ProductName, @Description, @ListPrice, @DiscountPercent, @DateAdded);";
+
+            try
+            {
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+                await using var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CategoryID", dto.CategoryID);
+                command.Parameters.AddWithValue("@ProductCode", dto.ProductCode);
+                command.Parameters.AddWithValue("@ProductName", dto.ProductName);
+                command.Parameters.AddWithValue("@Description", dto.Description);
+                command.Parameters.AddWithValue("@ListPrice", dto.ListPrice);
+                command.Parameters.AddWithValue("@DiscountPercent", dto.DiscountPercent);
+                command.Parameters.AddWithValue("@DateAdded", DateTime.UtcNow);
+
+                return await command.ExecuteNonQueryAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, "Error inserting new product");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateAsync(string id, ProductDto dto)
         {
             const string query = @"
                 UPDATE Products
@@ -161,7 +161,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 command.Parameters.AddWithValue("@Description", dto.Description);
                 command.Parameters.AddWithValue("@ListPrice", dto.ListPrice);
                 command.Parameters.AddWithValue("@DiscountPercent", dto.DiscountPercent);
-                return await command.ExecuteNonQueryAsync();
+                return await command.ExecuteNonQueryAsync() > 0;
             }
             catch (Exception ex)
             {
@@ -170,7 +170,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<int> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string id)
         {
             const string query = @"DELETE FROM Products WHERE ProductID = @ProductID;";
             try
@@ -178,12 +178,12 @@ namespace MyGuitarShop.Data.Ado.Repository
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
                 await using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@ProductID", id);
-                return await command.ExecuteNonQueryAsync();
+                return await command.ExecuteNonQueryAsync() > 0;
             }
             catch (Exception ex)
             {
                 logger.LogError(ex.Message, $"Error deleting product {id}");
-                return 0;
+                return false;
             }
         }
     }

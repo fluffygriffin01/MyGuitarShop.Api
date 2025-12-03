@@ -44,32 +44,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             return orderItems;
         }
 
-        public async Task<int> InsertAsync(OrderItemDto dto)
-        {
-            const string query = @"
-                INSERT INTO OrderItems (OrderID, ProductID, ItemPrice, DiscountAmount, Quantity)
-                VALUES (@OrderID, @ProductID, @ItemPrice, @DiscountAmount, @Quantity);";
-
-            try
-            {
-                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
-                await using var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@OrderID", dto.OrderID ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@ProductID", dto.ProductID ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@ItemPrice", dto.ItemPrice);
-                command.Parameters.AddWithValue("@DiscountAmount", dto.DiscountAmount);
-                command.Parameters.AddWithValue("@Quantity", dto.Quantity);
-
-                return await command.ExecuteNonQueryAsync();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex.Message, "Error inserting new orderItem");
-                return 0;
-            }
-        }
-
-        public async Task<OrderItemEntity?> FindByIdAsync(int id)
+        public async Task<OrderItemEntity?> FindByIdAsync(string id)
         {
             OrderItemEntity? orderItem = null;
 
@@ -100,7 +75,32 @@ namespace MyGuitarShop.Data.Ado.Repository
             return orderItem;
         }
 
-        public async Task<int> UpdateAsync(int id, OrderItemDto dto)
+        public async Task<bool> InsertAsync(OrderItemDto dto)
+        {
+            const string query = @"
+                INSERT INTO OrderItems (OrderID, ProductID, ItemPrice, DiscountAmount, Quantity)
+                VALUES (@OrderID, @ProductID, @ItemPrice, @DiscountAmount, @Quantity);";
+
+            try
+            {
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+                await using var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@OrderID", dto.OrderID ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@ProductID", dto.ProductID ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@ItemPrice", dto.ItemPrice);
+                command.Parameters.AddWithValue("@DiscountAmount", dto.DiscountAmount);
+                command.Parameters.AddWithValue("@Quantity", dto.Quantity);
+
+                return await command.ExecuteNonQueryAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, "Error inserting new orderItem");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateAsync(string id, OrderItemDto dto)
         {
             const string query = @"
                 UPDATE OrderItems
@@ -121,7 +121,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 command.Parameters.AddWithValue("@ItemPrice", dto.ItemPrice);
                 command.Parameters.AddWithValue("@DiscountAmount", dto.DiscountAmount);
                 command.Parameters.AddWithValue("@Quantity", dto.Quantity);
-                return await command.ExecuteNonQueryAsync();
+                return await command.ExecuteNonQueryAsync() > 0;
             }
             catch (Exception ex)
             {
@@ -130,7 +130,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<int> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string id)
         {
             const string query = @"DELETE FROM OrderItems WHERE ItemID = @ItemID;";
             try
@@ -138,12 +138,12 @@ namespace MyGuitarShop.Data.Ado.Repository
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
                 await using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@ItemID", id);
-                return await command.ExecuteNonQueryAsync();
+                return await command.ExecuteNonQueryAsync() > 0;
             }
             catch (Exception ex)
             {
                 logger.LogError(ex.Message, $"Error deleting orderItem {id}");
-                return 0;
+                return false;
             }
         }
     }

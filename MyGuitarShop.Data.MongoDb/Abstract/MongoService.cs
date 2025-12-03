@@ -1,12 +1,14 @@
-﻿using MongoDB.Driver;
+﻿using Microsoft.Extensions.Logging;
+using MongoDB.Driver;
 using MyGuitarShop.Common.Interfaces;
+using MyGuitarShop.Common.Mappers;
 using SharpCompress.Common;
 
 namespace MyGuitarShop.Data.MongoDb.Abstract
 {
-    public abstract class MongoService<TEntity>(
+    public abstract class MongoService<TEntity, TDto>(
         IMongoDatabase database) 
-        : IRepository<TEntity, string> where TEntity : MongoModel
+        : IRepository<TEntity, TDto> where TEntity : MongoModel, new()
     {
         private IMongoCollection<TEntity> Entities => database.GetCollection<TEntity>(nameof(TEntity));
 
@@ -21,14 +23,22 @@ namespace MyGuitarShop.Data.MongoDb.Abstract
             return await Entities.Find(f => Equals(f._id, id)).FirstOrDefaultAsync();
         }
 
-        public async Task<bool> InsertAsync(TEntity entity)
+        public async Task<bool> InsertAsync(TDto dto)
         {
+            var entity = AutoReflectionMapper.Map<TDto, TEntity>(dto);
+            if (entity == null)
+                throw new Exception("Mapping resulted in null entity");
+
             await Entities.InsertOneAsync(entity);
             return !string.IsNullOrEmpty(entity._id);
         }
 
-        public async Task<bool> UpdateAsync(string id, TEntity entity)
+        public async Task<bool> UpdateAsync(string id, TDto dto)
         {
+            var entity = AutoReflectionMapper.Map<TDto, TEntity>(dto);
+            if (entity == null)
+                throw new Exception("Mapping resulted in null entity");
+
             var result = await Entities.ReplaceOneAsync(f => Equals(f._id, id), entity);
             return result.IsAcknowledged;
         }

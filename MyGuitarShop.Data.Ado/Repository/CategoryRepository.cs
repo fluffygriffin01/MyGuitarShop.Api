@@ -40,28 +40,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             return categories;
         }
 
-        public async Task<int> InsertAsync(CategoryDto dto)
-        {
-            const string query = @"
-                INSERT INTO Categories (CategoryName)
-                VALUES (@CategoryName);";
-
-            try
-            {
-                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
-                await using var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CategoryName", dto.CategoryName);
-
-                return await command.ExecuteNonQueryAsync();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex.Message, "Error inserting new category");
-                return 0;
-            }
-        }
-
-        public async Task<CategoryEntity?> FindByIdAsync(int id)
+        public async Task<CategoryEntity?> FindByIdAsync(string id)
         {
             CategoryEntity? category = null;
 
@@ -114,7 +93,28 @@ namespace MyGuitarShop.Data.Ado.Repository
             return category;
         }
 
-        public async Task<int> UpdateAsync(int id, CategoryDto dto)
+        public async Task<bool> InsertAsync(CategoryDto dto)
+        {
+            const string query = @"
+                INSERT INTO Categories (CategoryName)
+                VALUES (@CategoryName);";
+
+            try
+            {
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+                await using var command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@CategoryName", dto.CategoryName);
+
+                return await command.ExecuteNonQueryAsync() > 0;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, "Error inserting new category");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateAsync(string id, CategoryDto dto)
         {
             const string query = @"
                 UPDATE Categories
@@ -127,7 +127,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 await using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@CategoryID", id);
                 command.Parameters.AddWithValue("@CategoryName", dto.CategoryName);
-                return await command.ExecuteNonQueryAsync();
+                return await command.ExecuteNonQueryAsync() > 0;
             }
             catch (Exception ex)
             {
@@ -136,7 +136,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<int> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string id)
         {
             const string query = @"DELETE FROM Categories WHERE CategoryID = @CategoryID;";
             try
@@ -144,12 +144,12 @@ namespace MyGuitarShop.Data.Ado.Repository
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
                 await using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@CategoryID", id);
-                return await command.ExecuteNonQueryAsync();
+                return await command.ExecuteNonQueryAsync() > 0;
             }
             catch (Exception ex)
             {
                 logger.LogError(ex.Message, $"Error deleting category {id}");
-                return 0;
+                return false;
             }
         }
     }

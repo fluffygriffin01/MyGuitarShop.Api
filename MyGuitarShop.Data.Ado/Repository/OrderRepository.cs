@@ -52,7 +52,43 @@ namespace MyGuitarShop.Data.Ado.Repository
             return orders;
         }
 
-        public async Task<int> InsertAsync(OrderDto dto)
+        public async Task<OrderEntity?> FindByIdAsync(string id)
+        {
+            OrderEntity? order = null;
+
+            try
+            {
+                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
+                await using var command = new SqlCommand(cmdText: "SELECT * FROM Orders WHERE OrderID = @OrderID;", connection);
+                command.Parameters.AddWithValue("@OrderID", id);
+                var reader = await command.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
+                {
+                    order = new OrderEntity
+                    {
+                        OrderID = reader.GetInt32(reader.GetOrdinal("OrderID")),
+                        CustomerID = reader.IsDBNull(reader.GetOrdinal("CustomerID")) ? null : reader.GetInt32(reader.GetOrdinal("CustomerID")),
+                        OrderDate = reader.GetDateTime(reader.GetOrdinal("OrderDate")),
+                        ShipAmount = reader.GetDecimal(reader.GetOrdinal("ShipAmount")),
+                        TaxAmount = reader.GetDecimal(reader.GetOrdinal("TaxAmount")),
+                        ShipDate = reader.IsDBNull(reader.GetOrdinal("ShipDate")) ? null : reader.GetDateTime(reader.GetOrdinal("ShipDate")),
+                        ShipAddressID = reader.GetInt32(reader.GetOrdinal("ShipAddressID")),
+                        CardType = reader.GetString(reader.GetOrdinal("CardType")),
+                        CardNumber = reader.GetString(reader.GetOrdinal("CardNumber")),
+                        CardExpires = reader.GetString(reader.GetOrdinal("CardExpires")),
+                        BillingAddressID = reader.GetInt32(reader.GetOrdinal("BillingAddressID"))
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex.Message, $"Error retrieving order {id} by ID");
+            }
+            return order;
+        }
+
+        public async Task<bool> InsertAsync(OrderDto dto)
         {
             string query = @"
                 BEGIN TRY
@@ -127,52 +163,16 @@ namespace MyGuitarShop.Data.Ado.Repository
                     command.Parameters.AddWithValue("@Quantity" + i, item.Quantity);
                 }
 
-                return await command.ExecuteNonQueryAsync();
+                return await command.ExecuteNonQueryAsync() > 0;
             }
             catch (Exception ex)
             {
                 logger.LogError(ex.Message, "Error inserting new order");
-                return 0;
+                return false;
             }
         }
 
-        public async Task<OrderEntity?> FindByIdAsync(int id)
-        {
-            OrderEntity? order = null;
-
-            try
-            {
-                await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
-                await using var command = new SqlCommand(cmdText: "SELECT * FROM Orders WHERE OrderID = @OrderID;", connection);
-                command.Parameters.AddWithValue("@OrderID", id);
-                var reader = await command.ExecuteReaderAsync();
-
-                if (await reader.ReadAsync())
-                {
-                    order = new OrderEntity
-                    {
-                        OrderID = reader.GetInt32(reader.GetOrdinal("OrderID")),
-                        CustomerID = reader.IsDBNull(reader.GetOrdinal("CustomerID")) ? null : reader.GetInt32(reader.GetOrdinal("CustomerID")),
-                        OrderDate = reader.GetDateTime(reader.GetOrdinal("OrderDate")),
-                        ShipAmount = reader.GetDecimal(reader.GetOrdinal("ShipAmount")),
-                        TaxAmount = reader.GetDecimal(reader.GetOrdinal("TaxAmount")),
-                        ShipDate = reader.IsDBNull(reader.GetOrdinal("ShipDate")) ? null : reader.GetDateTime(reader.GetOrdinal("ShipDate")),
-                        ShipAddressID = reader.GetInt32(reader.GetOrdinal("ShipAddressID")),
-                        CardType = reader.GetString(reader.GetOrdinal("CardType")),
-                        CardNumber = reader.GetString(reader.GetOrdinal("CardNumber")),
-                        CardExpires = reader.GetString(reader.GetOrdinal("CardExpires")),
-                        BillingAddressID = reader.GetInt32(reader.GetOrdinal("BillingAddressID"))
-                    };
-                }
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex.Message, $"Error retrieving order {id} by ID");
-            }
-            return order;
-        }
-
-        public async Task<int> UpdateAsync(int id, OrderDto dto)
+        public async Task<bool> UpdateAsync(string id, OrderDto dto)
         {
             const string query = @"
                 UPDATE Orders
@@ -203,7 +203,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 command.Parameters.AddWithValue("@CardNumber", dto.CardNumber);
                 command.Parameters.AddWithValue("@CardExpires", dto.CardExpires);
                 command.Parameters.AddWithValue("@BillingAddressID", dto.BillingAddressID);
-                return await command.ExecuteNonQueryAsync();
+                return await command.ExecuteNonQueryAsync() > 0;
             }
             catch (Exception ex)
             {
@@ -212,7 +212,7 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<int> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(string id)
         {
             const string query = @"DELETE FROM Orders WHERE OrderID = @OrderID;";
             try
@@ -220,12 +220,12 @@ namespace MyGuitarShop.Data.Ado.Repository
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
                 await using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@OrderID", id);
-                return await command.ExecuteNonQueryAsync();
+                return await command.ExecuteNonQueryAsync() > 0;
             }
             catch (Exception ex)
             {
                 logger.LogError(ex.Message, $"Error deleting order {id}");
-                return 0;
+                return false;
             }
         }
     }

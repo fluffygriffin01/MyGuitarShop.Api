@@ -53,14 +53,15 @@ namespace MyGuitarShop.Api.Controllers.MongoControllers
         {
             try
             {
-                var model = new ProductModel
+                var model = new ProductDto
                 {
-                    Category = (CategoryType)newProduct.CategoryID!,
+                    CategoryID = newProduct.CategoryID,
                     ProductCode = newProduct.ProductCode,
                     ProductName = newProduct.ProductName,
                     Description = newProduct.Description,
                     ListPrice = newProduct.ListPrice,
-                    DiscountPercent = newProduct.DiscountPercent
+                    DiscountPercent = newProduct.DiscountPercent,
+                    Quantity = 1
                 };
 
                 var numProductsCreated = await productService.InsertAsync(model);
@@ -88,8 +89,8 @@ namespace MyGuitarShop.Api.Controllers.MongoControllers
                 existingProduct.Description = updatedProduct.Description;
                 existingProduct.ListPrice = updatedProduct.ListPrice;
                 existingProduct.DiscountPercent = updatedProduct.DiscountPercent;
-                if (await productService.UpdateAsync(id, existingProduct))
-                    return Ok($"Product with id {id} updated");
+                /*if (await productService.UpdateAsync(id, existingProduct))
+                    return Ok($"Product with id {id} updated");*/
                 return BadRequest("Failed to update product in MongoDB");
             }
             catch (Exception ex)

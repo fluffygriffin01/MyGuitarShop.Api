@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MyGuitarShop.Common.Interfaces
+﻿namespace MyGuitarShop.Common.Interfaces
 {
-    public interface IRepository<TEntity, TDto>
+    public interface IRepository<TEntiy, TDto>
     {
-        Task<IEnumerable<TEntity>> GetAllAsync();
-        Task<TEntity?> FindByIdAsync(string id);
-        Task<bool> InsertAsync(TEntity entity);
-        Task<bool> UpdateAsync(string id, TEntity entity);
+        Task<IEnumerable<TEntiy>> GetAllAsync();
+        Task<TEntiy?> FindByIdAsync(string id);
+        Task<bool> InsertAsync(TDto dto);
+        Task<bool> UpdateAsync(string id, TDto dto);
         Task<bool> DeleteAsync(string id);
     }
 }
