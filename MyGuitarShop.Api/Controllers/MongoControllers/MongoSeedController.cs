@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MyGuitarShop.Common.Dtos;
 using MyGuitarShop.Common.Enums;
 using MyGuitarShop.Common.Interfaces;
 using MyGuitarShop.Data.Ado.Entities;
@@ -8,12 +9,12 @@ using MyGuitarShop.Data.MongoDb.Services;
 
 namespace MyGuitarShop.Api.Controllers.MongoControllers
 {
-    [Route("api/[controller]")]
+    [Route("api/mongo/[controller]")]
     [ApiController]
     public class MongoSeedController(
         ILogger<MongoSeedController> logger,
         ProductService productService,
-        IRepository<ProductEntity, int> productRepo) : ControllerBase
+        IRepository<ProductEntity, ProductDto> productRepo) : ControllerBase
     {
         [HttpPost]
         public async Task<IActionResult> SeedMongoFromSqlServer()
@@ -23,7 +24,7 @@ namespace MyGuitarShop.Api.Controllers.MongoControllers
                 var allProductsFromSql = await productRepo.GetAllAsync();
                 foreach (var product in allProductsFromSql)
                 {
-                    if (!await productService.InsertAsync(new Common.Dtos.ProductDto
+                    if (!await productService.InsertAsync(new ProductDto
                     {
                         CategoryID = product.CategoryID,
                         ProductCode = product.ProductCode,

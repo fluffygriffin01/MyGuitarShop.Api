@@ -89,7 +89,6 @@ namespace MyGuitarShop.Api
             var connectionString = builder.Configuration.GetConnectionString(name: "MyGuitarShop")
                 ?? throw new InvalidOperationException("MyGuitarShop connection string not found.");
 
-
             // ADO.NET Repositories
             builder.Services.AddSingleton(new SqlConnectionFactory(connectionString));
             builder.Services.AddScoped<IRepository<AddressEntity, AddressDto>, AddressRepository>();
@@ -104,11 +103,11 @@ namespace MyGuitarShop.Api
             builder.Services.AddDbContextFactory<MyGuitarShopContext>(options =>
                 options.UseSqlServer(connectionString));
             builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.AddressRepository>();
-            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.AdministratorRepository>();           
+            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.AdministratorRepository>();
             builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.CategoryRepository>();
             builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.CustomerRepository>();
             builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.OrderItemRepository>();
-            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.OrderRepository>();           
+            builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.OrderRepository>();
             builder.Services.AddScoped<MyGuitarShop.Data.EFCore.Repositories.ProductRepository>();
 
             // MongoDB Repositories
@@ -116,7 +115,7 @@ namespace MyGuitarShop.Api
                 ?? throw new InvalidOperationException("MongoDb connection string not found.");
 
             builder.Services.AddSingleton<IMongoClient, MongoClient>(_ => new MongoClient(mongoConnectionString));
-            builder.Services.AddSingleton<IMongoDatabase>(sp =>             
+            builder.Services.AddSingleton<IMongoDatabase>(sp =>
             {
                 var client = sp.GetRequiredService<IMongoClient>();
                 return client.GetDatabase("MyGuitarShopCluster");
