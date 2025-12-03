@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using MyGuitarShop.Common.Dtos;
 using MyGuitarShop.Common.Interfaces;
+using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
 
 namespace MyGuitarShop.Data.Ado.Repository
@@ -9,11 +10,11 @@ namespace MyGuitarShop.Data.Ado.Repository
     public class AdministratorRepository(
         ILogger<AdministratorRepository> logger,
         SqlConnectionFactory sqlConnectionFactory)
-        : IRepository<AdministratorDto>
+        : IRepository<AdministratorEntity, AdministratorDto>
     {
-        public async Task<IEnumerable<AdministratorDto>> GetAllAsync()
+        public async Task<IEnumerable<AdministratorEntity>> GetAllAsync()
         {
-            var administrators = new List<AdministratorDto>();
+            var administrators = new List<AdministratorEntity>();
 
             try
             {
@@ -23,7 +24,7 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 while (await reader.ReadAsync())
                 {
-                    var administrator = new AdministratorDto
+                    var administrator = new AdministratorEntity
                     {
                         AdminID = reader.GetInt32(reader.GetOrdinal("AdminID")),
                         EmailAddress = reader.GetString(reader.GetOrdinal("EmailAddress")),
@@ -66,9 +67,9 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<AdministratorDto?> FindByIdAsync(int id)
+        public async Task<AdministratorEntity?> FindByIdAsync(int id)
         {
-            AdministratorDto? administrator = null;
+            AdministratorEntity? administrator = null;
 
             try
             {
@@ -79,7 +80,7 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 if (await reader.ReadAsync())
                 {
-                    administrator = new AdministratorDto
+                    administrator = new AdministratorEntity
                     {
                         AdminID = reader.GetInt32(reader.GetOrdinal("AdminID")),
                         EmailAddress = reader.GetString(reader.GetOrdinal("EmailAddress")),

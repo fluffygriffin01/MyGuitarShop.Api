@@ -13,6 +13,7 @@ namespace MyGuitarShop.Common.Dtos
         public required string Description { get; set; }
         public required decimal ListPrice { get; set; }
         public required decimal DiscountPercent { get; set; } = 0m;
+        public required int Quantity { get; set; }
         public DateTime? DateAdded { get; set; } = null;
     }
 }

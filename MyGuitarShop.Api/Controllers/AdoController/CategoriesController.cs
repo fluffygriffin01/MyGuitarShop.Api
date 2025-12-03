@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyGuitarShop.Common.Dtos;
 using MyGuitarShop.Common.Interfaces;
+using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Repository;
 
 namespace MyGuitarShop.Api.Controllers.AdoController
@@ -9,7 +10,7 @@ namespace MyGuitarShop.Api.Controllers.AdoController
     [ApiController]
     public class CategoriesController(
         ILogger<CategoriesController> logger,
-        IRepository<CategoryDto> repo)
+        IRepository<CategoryEntity, CategoryDto> repo)
         : ControllerBase
     {
         [HttpGet]

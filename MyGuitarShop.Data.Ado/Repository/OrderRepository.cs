@@ -2,18 +2,22 @@
 using Microsoft.Extensions.Logging;
 using MyGuitarShop.Common.Dtos;
 using MyGuitarShop.Common.Interfaces;
+using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
+using Newtonsoft.Json;
+using static Azure.Core.HttpHeader;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MyGuitarShop.Data.Ado.Repository
 {
     public class OrderRepository(
         ILogger<OrderRepository> logger,
         SqlConnectionFactory sqlConnectionFactory)
-        : IRepository<OrderDto>
+        : IRepository<OrderEntity, OrderDto>
     {
-        public async Task<IEnumerable<OrderDto>> GetAllAsync()
+        public async Task<IEnumerable<OrderEntity>> GetAllAsync()
         {
-            var orders = new List<OrderDto>();
+            var orders = new List<OrderEntity>();
 
             try
             {
@@ -23,7 +27,7 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 while (await reader.ReadAsync())
                 {
-                    var order = new OrderDto
+                    var order = new OrderEntity
                     {
                         OrderID = reader.GetInt32(reader.GetOrdinal("OrderID")),
                         CustomerID = reader.IsDBNull(reader.GetOrdinal("CustomerID")) ? null : reader.GetInt32(reader.GetOrdinal("CustomerID")),
@@ -50,24 +54,78 @@ namespace MyGuitarShop.Data.Ado.Repository
 
         public async Task<int> InsertAsync(OrderDto dto)
         {
-            const string query = @"
-                INSERT INTO Orders (CustomerID, OrderDate, ShipAmount, TaxAmount, ShipDate, ShipAddressID, CardType, CardNumber, CardExpires, BillingAddressID)
-                VALUES (@CustomerID, @OrderDate, @ShipAmount, @TaxAmount, @ShipDate, @ShipAddressID, @CardType, @CardNumber, @CardExpires, @BillingAddressID);";
+            string query = @"
+                BEGIN TRY
+                    BEGIN TRANSACTION;
+
+                    DECLARE @BillingAddressID INT;
+                    DECLARE @ShipAddressID INT;
+                    DECLARE @OrderID INT;
+                    DECLARE @ItemPrice DECIMAL(18,2);
+                    DECLARE @DiscountAmount DECIMAL(18,2);
+
+                    SELECT @BillingAddressID = BillingAddressID from Customers where CustomerID = @CustomerID;
+                    SELECT @ShipAddressID = ShippingAddressID from Customers where CustomerID = @CustomerID;
+
+                    -- Insert Order
+                    INSERT INTO Orders (CustomerID, OrderDate, ShipAmount, TaxAmount, ShipDate, ShipAddressID, CardType, CardNumber, CardExpires, BillingAddressID)
+                    VALUES (@CustomerID, @OrderDate, @ShipAmount, @TaxAmount, @ShipDate, @ShipAddressID, @CardType, @CardNumber, @CardExpires, @BillingAddressID);
+                    
+                    SET @OrderID = SCOPE_IDENTITY();
+
+            ";
 
             try
             {
+                // Insert Order Items
+                for (int i = 0; i < dto.Items.Count; i++)
+                {
+                    var item = dto.Items[i];
+                    query += @"
+                        SELECT @ItemPrice = ListPrice from Products where ProductID = @ProductID" + i + @";
+                        SELECT @DiscountAmount = (@ItemPrice * DiscountPercent * 0.01) from Products where ProductID = @ProductID" + i + @";
+
+                        INSERT INTO OrderItems (OrderID, ProductID, ItemPrice, DiscountAmount, Quantity)
+                        VALUES (@OrderID, @ProductID" + i + @", @ItemPrice, @DiscountAmount, @Quantity" + i + @");
+                        ";
+                }
+
+                // Complete Transaction
+                query += @"
+                    -- Commit if all succeeded
+                        COMMIT TRANSACTION;
+                    END TRY
+                    BEGIN CATCH
+                        ROLLBACK TRANSACTION;
+
+                    DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+                    DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
+                    DECLARE @ErrorState INT = ERROR_STATE();
+                    RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
+                    END CATCH; ";
+
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
                 await using var command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@CustomerID", dto.CustomerID ?? (object)DBNull.Value);
+
+                // Order parameters
+                command.Parameters.AddWithValue("@CustomerID", dto.CustomerID);
                 command.Parameters.AddWithValue("@OrderDate", DateTime.UtcNow);
                 command.Parameters.AddWithValue("@ShipAmount", dto.ShipAmount);
                 command.Parameters.AddWithValue("@TaxAmount", dto.TaxAmount);
-                command.Parameters.AddWithValue("@ShipDate", dto.ShipDate ?? (object)DBNull.Value);
-                command.Parameters.AddWithValue("@ShipAddressID", dto.ShipAddressID);
+                command.Parameters.AddWithValue("@ShipDate", DBNull.Value);
                 command.Parameters.AddWithValue("@CardType", dto.CardType);
                 command.Parameters.AddWithValue("@CardNumber", dto.CardNumber);
                 command.Parameters.AddWithValue("@CardExpires", dto.CardExpires);
-                command.Parameters.AddWithValue("@BillingAddressID", dto.BillingAddressID);
+
+                // Order Items parameters
+                for (int i = 0; i < dto.Items.Count; i++)
+                {
+                    var item = dto.Items[i];
+                    command.Parameters.AddWithValue("@ProductID" + i, item.ProductID);
+                    command.Parameters.AddWithValue("@ItemPrice" + i, item.ListPrice);
+                    command.Parameters.AddWithValue("@DiscountAmount" + i, item.ListPrice * item.DiscountPercent * 0.01m);
+                    command.Parameters.AddWithValue("@Quantity" + i, item.Quantity);
+                }
 
                 return await command.ExecuteNonQueryAsync();
             }
@@ -78,9 +136,9 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<OrderDto?> FindByIdAsync(int id)
+        public async Task<OrderEntity?> FindByIdAsync(int id)
         {
-            OrderDto? order = null;
+            OrderEntity? order = null;
 
             try
             {
@@ -91,7 +149,7 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 if (await reader.ReadAsync())
                 {
-                    order = new OrderDto
+                    order = new OrderEntity
                     {
                         OrderID = reader.GetInt32(reader.GetOrdinal("OrderID")),
                         CustomerID = reader.IsDBNull(reader.GetOrdinal("CustomerID")) ? null : reader.GetInt32(reader.GetOrdinal("CustomerID")),
@@ -135,7 +193,7 @@ namespace MyGuitarShop.Data.Ado.Repository
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
                 await using var command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@OrderID", id);
-                command.Parameters.AddWithValue("@CustomerID", dto.CustomerID ?? (object)DBNull.Value);
+                command.Parameters.AddWithValue("@CustomerID", dto.CustomerID);
                 command.Parameters.AddWithValue("@OrderDate", DateTime.UtcNow);
                 command.Parameters.AddWithValue("@ShipAmount", dto.ShipAmount);
                 command.Parameters.AddWithValue("@TaxAmount", dto.TaxAmount);

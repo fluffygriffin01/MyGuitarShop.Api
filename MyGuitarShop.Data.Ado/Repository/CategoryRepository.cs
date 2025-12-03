@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using MyGuitarShop.Common.Dtos;
 using MyGuitarShop.Common.Interfaces;
+using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
 
 namespace MyGuitarShop.Data.Ado.Repository
@@ -9,11 +10,11 @@ namespace MyGuitarShop.Data.Ado.Repository
     public class CategoryRepository(
         ILogger<CategoryRepository> logger,
         SqlConnectionFactory sqlConnectionFactory)
-        : IRepository<CategoryDto>
+        : IRepository<CategoryEntity, CategoryDto>
     {
-        public async Task<IEnumerable<CategoryDto>> GetAllAsync()
+        public async Task<IEnumerable<CategoryEntity>> GetAllAsync()
         {
-            var categories = new List<CategoryDto>();
+            var categories = new List<CategoryEntity>();
 
             try
             {
@@ -23,7 +24,7 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 while (await reader.ReadAsync())
                 {
-                    var category = new CategoryDto
+                    var category = new CategoryEntity
                     {
                         CategoryID = reader.GetInt32(reader.GetOrdinal("CategoryID")),
                         CategoryName = reader.GetString(reader.GetOrdinal("CategoryName"))
@@ -60,9 +61,9 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<CategoryDto?> FindByIdAsync(int id)
+        public async Task<CategoryEntity?> FindByIdAsync(int id)
         {
-            CategoryDto? category = null;
+            CategoryEntity? category = null;
 
             try
             {
@@ -73,7 +74,7 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 if (await reader.ReadAsync())
                 {
-                    category = new CategoryDto
+                    category = new CategoryEntity
                     {
                         CategoryID = reader.GetInt32(reader.GetOrdinal("CategoryID")),
                         CategoryName = reader.GetString(reader.GetOrdinal("CategoryName"))
@@ -87,9 +88,9 @@ namespace MyGuitarShop.Data.Ado.Repository
             return category;
         }
 
-        public async Task<CategoryDto?> FindByUniqueAsync(string categoryName)
+        public async Task<CategoryEntity?> FindByUniqueAsync(string categoryName)
         {
-            CategoryDto? category = null;
+            CategoryEntity? category = null;
             try
             {
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
@@ -99,7 +100,7 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 if (await reader.ReadAsync())
                 {
-                    category = new CategoryDto
+                    category = new CategoryEntity
                     {
                         CategoryID = reader.GetInt32(reader.GetOrdinal("CategoryID")),
                         CategoryName = reader.GetString(reader.GetOrdinal("CategoryName"))

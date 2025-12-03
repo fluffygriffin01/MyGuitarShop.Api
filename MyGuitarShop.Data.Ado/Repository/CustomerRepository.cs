@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using MyGuitarShop.Common.Dtos;
 using MyGuitarShop.Common.Interfaces;
+using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
 
 namespace MyGuitarShop.Data.Ado.Repository
@@ -9,11 +10,11 @@ namespace MyGuitarShop.Data.Ado.Repository
     public class CustomerRepository(
         ILogger<CustomerRepository> logger,
         SqlConnectionFactory sqlConnectionFactory)
-        : IRepository<CustomerDto>
+        : IRepository<CustomerEntity, CustomerDto>
     {
-        public async Task<IEnumerable<CustomerDto>> GetAllAsync()
+        public async Task<IEnumerable<CustomerEntity>> GetAllAsync()
         {
-            var customers = new List<CustomerDto>();
+            var customers = new List<CustomerEntity>();
 
             try
             {
@@ -23,7 +24,7 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 while (await reader.ReadAsync())
                 {
-                    var customer = new CustomerDto
+                    var customer = new CustomerEntity
                     {
                         CustomerID = reader.GetInt32(reader.GetOrdinal("CustomerID")),
                         EmailAddress = reader.GetString(reader.GetOrdinal("EmailAddress")),
@@ -70,9 +71,9 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<CustomerDto?> FindByIdAsync(int id)
+        public async Task<CustomerEntity?> FindByIdAsync(int id)
         {
-            CustomerDto? customer = null;
+            CustomerEntity? customer = null;
 
             try
             {
@@ -83,7 +84,7 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 if (await reader.ReadAsync())
                 {
-                    customer = new CustomerDto
+                    customer = new CustomerEntity
                     {
                         CustomerID = reader.GetInt32(reader.GetOrdinal("CustomerID")),
                         EmailAddress = reader.GetString(reader.GetOrdinal("EmailAddress")),
@@ -102,9 +103,9 @@ namespace MyGuitarShop.Data.Ado.Repository
             return customer;
         }
 
-        public async Task<CustomerDto?> FindByUniqueAsync(string emailAddress)
+        public async Task<CustomerEntity?> FindByUniqueAsync(string emailAddress)
         {
-            CustomerDto? customer = null;
+            CustomerEntity? customer = null;
             try
             {
                 await using var connection = await sqlConnectionFactory.OpenSqlConnectionAsync();
@@ -114,7 +115,7 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 if (await reader.ReadAsync())
                 {
-                    customer = new CustomerDto
+                    customer = new CustomerEntity
                     {
                         CustomerID = reader.GetInt32(reader.GetOrdinal("CustomerID")),
                         EmailAddress = reader.GetString(reader.GetOrdinal("EmailAddress")),

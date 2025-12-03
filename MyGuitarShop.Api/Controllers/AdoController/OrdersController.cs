@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyGuitarShop.Common.Dtos;
 using MyGuitarShop.Common.Interfaces;
+using MyGuitarShop.Data.Ado.Entities;
 
 namespace MyGuitarShop.Api.Controllers.AdoController
 {
@@ -8,7 +9,8 @@ namespace MyGuitarShop.Api.Controllers.AdoController
     [ApiController]
     public class OrdersController(
         ILogger<OrdersController> logger,
-        IRepository<OrderDto> repo)
+        IRepository<OrderEntity, OrderDto> repo,
+        IRepository<OrderItemEntity, OrderItemDto> itemRepo)
         : ControllerBase
     {
         [HttpGet]
@@ -49,6 +51,19 @@ namespace MyGuitarShop.Api.Controllers.AdoController
         {
             try
             {
+                var neworder = new OrderDto
+                {
+                    CustomerID = newOrder.CustomerID,
+                    OrderDate = DateTime.UtcNow,
+                    ShipAmount = newOrder.ShipAmount,
+                    TaxAmount = newOrder.TaxAmount,
+                    ShipDate = newOrder.ShipDate,
+                    CardType = newOrder.CardType,
+                    CardNumber = newOrder.CardNumber,
+                    CardExpires = newOrder.CardExpires,
+                    Items = newOrder.Items
+                };
+
                 var numOrdersCreated = await repo.InsertAsync(newOrder);
                 return Ok($"{numOrdersCreated} new orders created");
             }

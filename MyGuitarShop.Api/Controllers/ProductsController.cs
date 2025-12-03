@@ -1,14 +1,19 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MyGuitarShop.Data.Ado.Repository;
+using Microsoft.AspNetCore.Mvc;
+using MyGuitarShop.Common.Dtos;
+using MyGuitarShop.Common.Interfaces;
+using MyGuitarShop.Data.Ado.Entities;
 
 namespace MyGuitarShop.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsController(
-        ILogger<ProductsController> logger, 
-        ProductRepository repo) : ControllerBase
+        ILogger<ProductsController> logger,
+        IRepository<ProductEntity, ProductDto> repo)
+        : ControllerBase
     {
         [HttpGet]
         public async Task<IActionResult> Get()

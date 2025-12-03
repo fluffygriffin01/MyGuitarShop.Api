@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using MyGuitarShop.Common.Dtos;
 using MyGuitarShop.Common.Interfaces;
+using MyGuitarShop.Data.Ado.Entities;
 using MyGuitarShop.Data.Ado.Factories;
 
 namespace MyGuitarShop.Data.Ado.Repository
@@ -9,11 +10,11 @@ namespace MyGuitarShop.Data.Ado.Repository
     public class OrderItemRepository(
         ILogger<OrderItemRepository> logger,
         SqlConnectionFactory sqlConnectionFactory)
-        : IRepository<OrderItemDto>
+        : IRepository<OrderItemEntity, OrderItemDto>
     {
-        public async Task<IEnumerable<OrderItemDto>> GetAllAsync()
+        public async Task<IEnumerable<OrderItemEntity>> GetAllAsync()
         {
-            var orderItems = new List<OrderItemDto>();
+            var orderItems = new List<OrderItemEntity>();
 
             try
             {
@@ -23,7 +24,7 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 while (await reader.ReadAsync())
                 {
-                    var orderItem = new OrderItemDto
+                    var orderItem = new OrderItemEntity
                     {
                         ItemID = reader.GetInt32(reader.GetOrdinal("ItemID")),
                         OrderID = reader.IsDBNull(reader.GetOrdinal("OrderID")) ? null : reader.GetInt32(reader.GetOrdinal("OrderID")),
@@ -68,9 +69,9 @@ namespace MyGuitarShop.Data.Ado.Repository
             }
         }
 
-        public async Task<OrderItemDto?> FindByIdAsync(int id)
+        public async Task<OrderItemEntity?> FindByIdAsync(int id)
         {
-            OrderItemDto? orderItem = null;
+            OrderItemEntity? orderItem = null;
 
             try
             {
@@ -81,7 +82,7 @@ namespace MyGuitarShop.Data.Ado.Repository
 
                 if (await reader.ReadAsync())
                 {
-                    orderItem = new OrderItemDto
+                    orderItem = new OrderItemEntity
                     {
                         ItemID = reader.GetInt32(reader.GetOrdinal("ItemID")),
                         OrderID = reader.IsDBNull(reader.GetOrdinal("OrderID")) ? null : reader.GetInt32(reader.GetOrdinal("OrderID")),
