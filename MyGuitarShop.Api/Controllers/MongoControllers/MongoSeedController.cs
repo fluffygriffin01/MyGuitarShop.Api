@@ -9,7 +9,7 @@ using MyGuitarShop.Data.MongoDb.Services;
 
 namespace MyGuitarShop.Api.Controllers.MongoControllers
 {
-    [Route("api/mongo/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class MongoSeedController(
         ILogger<MongoSeedController> logger,
@@ -34,7 +34,7 @@ namespace MyGuitarShop.Api.Controllers.MongoControllers
                         DiscountPercent = product.DiscountPercent,
                         DateAdded = product.DateAdded ?? DateTime.UtcNow,
                         Quantity = 1
-                    })) throw new Exception($"Problemms insert {product} into Mongo");
+                    })) throw new Exception($"Problemms inserting {product} into Mongo");
                 }
                 return Ok("All products inserted to Mongo");
             }
